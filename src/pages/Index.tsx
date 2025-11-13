@@ -24,20 +24,7 @@ export default function Index() {
 
       if (error) throw error;
 
-      // Fetch author emails
-      const articlesWithAuthors = await Promise.all(
-        data.map(async (article) => {
-          const { data: userData } = await supabase.auth.admin.getUserById(
-            article.author_id
-          );
-          return {
-            ...article,
-            authorEmail: userData?.user?.email
-          };
-        })
-      );
-
-      return articlesWithAuthors;
+      return data;
     }
   });
 
@@ -77,7 +64,6 @@ export default function Index() {
                 excerpt={article.excerpt}
                 featuredImage={article.featured_image_url || undefined}
                 publishedAt={article.published_at || ''}
-                authorEmail={article.authorEmail}
               />
             ))}
           </div>

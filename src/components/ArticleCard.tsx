@@ -10,7 +10,6 @@ interface ArticleCardProps {
   excerpt: string;
   featuredImage?: string;
   publishedAt: string;
-  authorEmail?: string;
 }
 
 export function ArticleCard({
@@ -18,8 +17,7 @@ export function ArticleCard({
   title,
   excerpt,
   featuredImage,
-  publishedAt,
-  authorEmail
+  publishedAt
 }: ArticleCardProps) {
   return (
     <Link to={`/article/${slug}`} className="group">
@@ -43,12 +41,6 @@ export function ArticleCard({
               <Calendar className="h-4 w-4" />
               {format(new Date(publishedAt), 'MMM d, yyyy')}
             </span>
-            {authorEmail && (
-              <span className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                {authorEmail.split('@')[0]}
-              </span>
-            )}
           </div>
         </div>
       </article>
