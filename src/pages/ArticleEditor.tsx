@@ -34,7 +34,18 @@ export default function ArticleEditor() {
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
   const [section, setSection] = useState<string>('general');
+  const [articleType, setArticleType] = useState<'free' | 'paid'>('free');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Word counter helper
+  const getWordCount = (html: string) => {
+    const text = html.replace(/<[^>]*>/g, ' ');
+    const words = text.trim().split(/\s+/);
+    return words.filter(word => word.length > 0).length;
+  };
+
+  const wordCount = getWordCount(content);
+  const wordLimit = 2000;
 
   useEffect(() => {
     if (!user || !isReporter) {
@@ -66,6 +77,7 @@ export default function ArticleEditor() {
       setFeaturedImage(article.featured_image_url || '');
       setStatus(article.status as 'draft' | 'published' | 'scheduled');
       setSection(article.section || 'general');
+      setArticleType((article.article_type as 'free' | 'paid') || 'free');
       if (article.scheduled_at) {
         setScheduledDate(new Date(article.scheduled_at));
       }
@@ -128,6 +140,7 @@ export default function ArticleEditor() {
         featured_image_url: imageUrl || null,
         status,
         section,
+        article_type: articleType,
         author_id: user.id,
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
@@ -222,11 +235,24 @@ export default function ArticleEditor() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="content">Content *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="content">Content *</Label>
+                    <span className={cn(
+                      "text-sm",
+                      wordCount > wordLimit ? "text-destructive font-semibold" : "text-muted-foreground"
+                    )}>
+                      {wordCount} / {wordLimit} words
+                    </span>
+                  </div>
                   <RichTextEditor
                     content={content}
                     onChange={setContent}
                   />
+                  {wordCount > wordLimit && (
+                    <p className="text-sm text-destructive">
+                      Article exceeds the recommended word limit of {wordLimit} words.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -297,6 +323,19 @@ export default function ArticleEditor() {
                       <SelectItem value="world">World</SelectItem>
                       <SelectItem value="health">Health</SelectItem>
                       <SelectItem value="opinion">Opinion</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="articleType">Article Type *</Label>
+                  <Select value={articleType} onValueChange={(value: 'free' | 'paid') => setArticleType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free - Available to all registered users</SelectItem>
+                      <SelectItem value="paid">Paid - Requires paid subscription</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

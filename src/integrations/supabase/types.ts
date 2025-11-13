@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       articles: {
         Row: {
+          article_type: string
           author_id: string
           content: string
           created_at: string
@@ -31,6 +32,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          article_type?: string
           author_id: string
           content: string
           created_at?: string
@@ -46,6 +48,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          article_type?: string
           author_id?: string
           content?: string
           created_at?: string
