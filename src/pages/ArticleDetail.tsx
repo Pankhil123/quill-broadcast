@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import defaultImage from '@/assets/default-news-image.jpg';
 
 export default function ArticleDetail() {
   const { slug } = useParams();
@@ -78,31 +79,26 @@ export default function ArticleDetail() {
                   <Calendar className="h-5 w-5" />
                   {format(new Date(article.published_at), 'MMMM d, yyyy')}
                 </span>
-                {article.authorEmail && (
-                  <span className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    {article.authorEmail.split('@')[0]}
-                  </span>
-                )}
-              </div>
-
-              {article.featured_image_url && (
-                <div className="mb-8 rounded-lg overflow-hidden">
-                  <img
-                    src={article.featured_image_url}
-                    alt={article.title}
-                    className="w-full"
-                  />
-                </div>
+              {article.authorEmail && (
+                <span className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  {article.authorEmail.split('@')[0]}
+                </span>
               )}
+            </div>
 
-              <div className="prose prose-lg max-w-none text-news-body">
-                {article.content.split('\n').map((paragraph, index) => (
-                  <p key={index} className="mb-4 leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+            <div className="mb-8 rounded-lg overflow-hidden">
+              <img
+                src={article.featured_image_url || defaultImage}
+                alt={article.title}
+                className="w-full"
+              />
+            </div>
+
+            <div 
+              className="prose prose-lg max-w-none text-news-body"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
             </article>
           ) : null}
         </div>

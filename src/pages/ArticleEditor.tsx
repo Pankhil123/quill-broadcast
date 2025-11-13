@@ -1,18 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
+import { RichTextEditor } from '@/components/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Upload, CalendarIcon, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 export default function ArticleEditor() {
   const { id } = useParams();
@@ -25,7 +30,10 @@ export default function ArticleEditor() {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [featuredImage, setFeaturedImage] = useState('');
-  const [status, setStatus] = useState<'draft' | 'published'>('draft');
+  const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!user || !isReporter) {
@@ -55,7 +63,10 @@ export default function ArticleEditor() {
       setExcerpt(article.excerpt);
       setContent(article.content);
       setFeaturedImage(article.featured_image_url || '');
-      setStatus(article.status as 'draft' | 'published');
+      setStatus(article.status as 'draft' | 'published' | 'scheduled');
+      if (article.scheduled_at) {
+        setScheduledDate(new Date(article.scheduled_at));
+      }
     }
   }, [article]);
 
@@ -73,15 +84,35 @@ export default function ArticleEditor() {
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
 
+      // Upload featured image if file is selected
+      let imageUrl = featuredImage;
+      if (featuredImageFile) {
+        const fileExt = featuredImageFile.name.split('.').pop();
+        const fileName = `featured-${Math.random()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('article-images')
+          .upload(fileName, featuredImageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('article-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = data.publicUrl;
+      }
+
       const articleData = {
         title,
         slug,
         excerpt,
         content,
-        featured_image_url: featuredImage || null,
+        featured_image_url: imageUrl || null,
         status,
         author_id: user.id,
-        published_at: status === 'published' ? new Date().toISOString() : null
+        published_at: status === 'published' ? new Date().toISOString() : null,
+        scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
       };
 
       if (id) {
@@ -174,39 +205,124 @@ export default function ArticleEditor() {
 
                 <div className="space-y-2">
                   <Label htmlFor="content">Content *</Label>
-                  <Textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your article content here..."
-                    rows={12}
-                    required
+                  <RichTextEditor
+                    content={content}
+                    onChange={setContent}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="image">Featured Image URL</Label>
-                  <Input
-                    id="image"
-                    value={featuredImage}
-                    onChange={(e) => setFeaturedImage(e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    type="url"
-                  />
+                  <Label>Featured Image</Label>
+                  <div className="space-y-2">
+                    <Input
+                      id="image-url"
+                      value={featuredImage}
+                      onChange={(e) => setFeaturedImage(e.target.value)}
+                      placeholder="Enter image URL"
+                      type="url"
+                    />
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm text-muted-foreground">or</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload Image
+                      </Button>
+                      {featuredImageFile && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-muted-foreground">{featuredImageFile.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFeaturedImageFile(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setFeaturedImageFile(file);
+                          setFeaturedImage('');
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={status} onValueChange={(value: 'draft' | 'published') => setStatus(value)}>
+                  <Select value={status} onValueChange={(value: 'draft' | 'published' | 'scheduled') => setStatus(value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="published">Publish Now</SelectItem>
+                      <SelectItem value="scheduled">Schedule for Later</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {status === 'scheduled' && (
+                  <div className="space-y-2">
+                    <Label>Schedule Date & Time *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !scheduledDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {scheduledDate ? format(scheduledDate, "PPP 'at' p") : "Pick a date and time"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={scheduledDate}
+                          onSelect={setScheduledDate}
+                          initialFocus
+                          className="pointer-events-auto"
+                        />
+                        {scheduledDate && (
+                          <div className="p-3 border-t">
+                            <Label className="text-sm">Time</Label>
+                            <Input
+                              type="time"
+                              value={scheduledDate ? format(scheduledDate, 'HH:mm') : ''}
+                              onChange={(e) => {
+                                if (scheduledDate) {
+                                  const [hours, minutes] = e.target.value.split(':');
+                                  const newDate = new Date(scheduledDate);
+                                  newDate.setHours(parseInt(hours), parseInt(minutes));
+                                  setScheduledDate(newDate);
+                                }
+                              }}
+                              className="mt-2"
+                            />
+                          </div>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                )}
 
                 <Button type="submit" className="w-full" disabled={saveMutation.isPending}>
                   <Save className="h-4 w-4 mr-2" />
