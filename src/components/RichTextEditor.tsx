@@ -170,10 +170,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           <Redo className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent 
-        editor={editor} 
-        className="prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none"
-      />
+      <div className="p-4 min-h-[400px] bg-background">
+        <EditorContent 
+          editor={editor} 
+          className="prose prose-sm max-w-none focus:outline-none [&_.ProseMirror]:min-h-[350px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:p-4 [&_.ProseMirror]:border [&_.ProseMirror]:border-input [&_.ProseMirror]:rounded-md"
+        />
+      </div>
     </div>
   );
 }
