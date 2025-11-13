@@ -29,6 +29,28 @@ export function UserManagement() {
     }
   });
 
+  // Fetch user emails for all users with roles
+  const { data: userEmails } = useQuery({
+    queryKey: ['user-emails', userRoles],
+    queryFn: async () => {
+      if (!userRoles || userRoles.length === 0) return {};
+      
+      const uniqueUserIds = [...new Set(userRoles.map(ur => ur.user_id))];
+      const emailMap: Record<string, string> = {};
+      
+      // Fetch user data for each user ID
+      for (const userId of uniqueUserIds) {
+        const { data } = await supabase.auth.admin.getUserById(userId);
+        if (data?.user?.email) {
+          emailMap[userId] = data.user.email;
+        }
+      }
+      
+      return emailMap;
+    },
+    enabled: !!userRoles && userRoles.length > 0
+  });
+
   // Group roles by user
   const usersByRole = userRoles?.reduce((acc, ur) => {
     if (!acc[ur.user_id]) {
@@ -108,14 +130,14 @@ export function UserManagement() {
       <CardHeader>
         <CardTitle>User Management</CardTitle>
         <CardDescription>
-          Manage user roles and permissions. User IDs are shown until profiles are created.
+          Manage user roles and permissions for all registered users.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User ID</TableHead>
+              <TableHead>User Email</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -124,9 +146,10 @@ export function UserManagement() {
             {userIds.length > 0 ? (
               userIds.map((userId) => {
                 const roles = usersByRole[userId] || [];
+                const email = userEmails?.[userId] || userId;
                 return (
                   <TableRow key={userId}>
-                    <TableCell className="font-mono text-xs">{userId}</TableCell>
+                    <TableCell className="font-medium">{email}</TableCell>
                     <TableCell>
                       <div className="flex gap-2 flex-wrap">
                         {roles.length > 0 ? (
