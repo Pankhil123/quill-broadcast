@@ -1,11 +1,11 @@
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
+import { CategoryNav } from '@/components/CategoryNav';
 import { Calendar, User, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import defaultImage from '@/assets/default-news-image.jpg';
 
@@ -53,6 +53,8 @@ export default function ArticleDetail() {
               Back to articles
             </Link>
           </Button>
+
+          <CategoryNav activeSection={article?.section} />
 
           {isLoading ? (
             <div className="space-y-8">

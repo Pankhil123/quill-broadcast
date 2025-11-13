@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
+import { CategoryNav } from '@/components/CategoryNav';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 
@@ -73,6 +74,8 @@ export default function SectionArticles() {
             All articles in {section.name.toLowerCase()}
           </p>
         </div>
+
+        <CategoryNav activeSection={sectionId} />
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
