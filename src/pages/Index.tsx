@@ -66,6 +66,23 @@ export default function Index() {
           </p>
         </div>
 
+        {/* Category Navigation */}
+        <nav className="max-w-6xl mx-auto mb-12">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-4">
+            <div className="flex flex-wrap gap-3 justify-center">
+              {SECTIONS.map((section) => (
+                <Link
+                  key={section.id}
+                  to={`/section/${section.id}`}
+                  className="px-4 py-2 rounded-md bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors font-medium"
+                >
+                  {section.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </nav>
+
         {isLoading ? (
           <div className="space-y-16 max-w-6xl mx-auto">
             {[...Array(3)].map((_, sectionIdx) => (
