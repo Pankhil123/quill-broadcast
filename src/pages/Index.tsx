@@ -96,18 +96,10 @@ export default function Index() {
               
               return (
                 <section key={section.id} className="space-y-6">
-                  <div className="border-b border-border pb-3 flex items-center justify-between">
+                  <div className="border-b border-border pb-3">
                     <h2 className="text-3xl font-bold text-news-heading capitalize">
                       {section.name}
                     </h2>
-                    {hasMore && (
-                      <Link 
-                        to={`/section/${section.id}`}
-                        className="text-primary hover:underline font-medium text-lg"
-                      >
-                        More →
-                      </Link>
-                    )}
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -123,6 +115,17 @@ export default function Index() {
                       />
                     ))}
                   </div>
+                  
+                  {hasMore && (
+                    <div className="text-center pt-4">
+                      <Link 
+                        to={`/section/${section.id}`}
+                        className="inline-flex items-center gap-2 text-primary hover:underline font-medium text-lg"
+                      >
+                        More from {section.name} →
+                      </Link>
+                    </div>
+                  )}
                 </section>
               );
             })}
