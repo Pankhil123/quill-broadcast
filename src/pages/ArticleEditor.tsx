@@ -105,9 +105,24 @@ export default function ArticleEditor() {
         imageUrl = data.publicUrl;
       }
 
+      // Ensure slug is unique by checking for duplicates
+      let uniqueSlug = slug;
+      if (!id) {
+        const { data: existingArticle } = await supabase
+          .from('articles')
+          .select('slug')
+          .eq('slug', slug)
+          .single();
+
+        if (existingArticle) {
+          // Append a random suffix to make slug unique
+          uniqueSlug = `${slug}-${Math.random().toString(36).substring(2, 7)}`;
+        }
+      }
+
       const articleData = {
         title,
-        slug,
+        slug: uniqueSlug,
         excerpt,
         content,
         featured_image_url: imageUrl || null,
