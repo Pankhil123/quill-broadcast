@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Newspaper, LogIn, LayoutDashboard } from 'lucide-react';
+import { Newspaper, LogIn, LayoutDashboard, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
 export function Header() {
-  const { user, isReporter } = useAuth();
+  const { user, isReporter, signOut } = useAuth();
 
   return (
     <header className="border-b border-news-divider bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -18,6 +18,9 @@ export function Header() {
           <nav className="flex items-center gap-4">
             {user ? (
               <>
+                <span className="text-sm text-news-meta">
+                  {user.email}
+                </span>
                 {isReporter && (
                   <Button asChild variant="ghost">
                     <Link to="/admin">
@@ -26,6 +29,10 @@ export function Header() {
                     </Link>
                   </Button>
                 )}
+                <Button variant="outline" onClick={signOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
               </>
             ) : (
               <Button asChild>
