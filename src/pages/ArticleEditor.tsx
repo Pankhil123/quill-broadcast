@@ -205,10 +205,12 @@ export default function ArticleEditor() {
 
                 <div className="space-y-2">
                   <Label htmlFor="content">Content *</Label>
-                  <RichTextEditor
-                    content={content}
-                    onChange={setContent}
-                  />
+                  <div className="border rounded-md min-h-[400px] p-4 bg-background">
+                    <RichTextEditor
+                      content={content}
+                      onChange={setContent}
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
