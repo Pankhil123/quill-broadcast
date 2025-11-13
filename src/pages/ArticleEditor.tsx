@@ -33,6 +33,7 @@ export default function ArticleEditor() {
   const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
+  const [section, setSection] = useState<string>('general');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function ArticleEditor() {
       setContent(article.content);
       setFeaturedImage(article.featured_image_url || '');
       setStatus(article.status as 'draft' | 'published' | 'scheduled');
+      setSection(article.section || 'general');
       if (article.scheduled_at) {
         setScheduledDate(new Date(article.scheduled_at));
       }
@@ -110,6 +112,7 @@ export default function ArticleEditor() {
         content,
         featured_image_url: imageUrl || null,
         status,
+        section,
         author_id: user.id,
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
@@ -261,6 +264,26 @@ export default function ArticleEditor() {
                       className="hidden"
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="section">Section *</Label>
+                  <Select value={section} onValueChange={setSection}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="politics">Politics</SelectItem>
+                      <SelectItem value="business">Business</SelectItem>
+                      <SelectItem value="technology">Technology</SelectItem>
+                      <SelectItem value="sports">Sports</SelectItem>
+                      <SelectItem value="entertainment">Entertainment</SelectItem>
+                      <SelectItem value="world">World</SelectItem>
+                      <SelectItem value="health">Health</SelectItem>
+                      <SelectItem value="opinion">Opinion</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

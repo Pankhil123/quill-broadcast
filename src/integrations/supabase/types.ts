@@ -24,6 +24,7 @@ export type Database = {
           id: string
           published_at: string | null
           scheduled_at: string | null
+          section: string
           slug: string
           status: string
           title: string
@@ -38,6 +39,7 @@ export type Database = {
           id?: string
           published_at?: string | null
           scheduled_at?: string | null
+          section?: string
           slug: string
           status?: string
           title: string
@@ -52,6 +54,7 @@ export type Database = {
           id?: string
           published_at?: string | null
           scheduled_at?: string | null
+          section?: string
           slug?: string
           status?: string
           title?: string

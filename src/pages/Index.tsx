@@ -4,6 +4,18 @@ import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const SECTIONS = [
+  { id: 'politics', name: 'Politics' },
+  { id: 'business', name: 'Business' },
+  { id: 'technology', name: 'Technology' },
+  { id: 'sports', name: 'Sports' },
+  { id: 'entertainment', name: 'Entertainment' },
+  { id: 'world', name: 'World' },
+  { id: 'health', name: 'Health' },
+  { id: 'opinion', name: 'Opinion' },
+  { id: 'general', name: 'General' }
+];
+
 export default function Index() {
   const { data: articles, isLoading } = useQuery({
     queryKey: ['published-articles'],
@@ -17,7 +29,8 @@ export default function Index() {
           excerpt,
           featured_image_url,
           published_at,
-          author_id
+          author_id,
+          section
         `)
         .eq('status', 'published')
         .order('published_at', { ascending: false });
@@ -28,12 +41,22 @@ export default function Index() {
     }
   });
 
+  // Group articles by section
+  const articlesBySection = articles?.reduce((acc, article) => {
+    const section = article.section || 'general';
+    if (!acc[section]) {
+      acc[section] = [];
+    }
+    acc[section].push(article);
+    return acc;
+  }, {} as Record<string, typeof articles>);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto mb-12 text-center">
+        <div className="max-w-6xl mx-auto mb-12 text-center">
           <h1 className="text-5xl font-bold text-news-heading mb-4">
             Latest News & Stories
           </h1>
@@ -43,29 +66,54 @@ export default function Index() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-4">
-                <Skeleton className="aspect-video w-full" />
-                <Skeleton className="h-8 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
+          <div className="space-y-16 max-w-6xl mx-auto">
+            {[...Array(3)].map((_, sectionIdx) => (
+              <div key={sectionIdx} className="space-y-6">
+                <Skeleton className="h-10 w-48" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="space-y-4">
+                      <Skeleton className="aspect-video w-full" />
+                      <Skeleton className="h-8 w-3/4" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
         ) : articles && articles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {articles.map((article) => (
-              <ArticleCard
-                key={article.id}
-                id={article.id}
-                slug={article.slug}
-                title={article.title}
-                excerpt={article.excerpt}
-                featuredImage={article.featured_image_url || undefined}
-                publishedAt={article.published_at || ''}
-              />
-            ))}
+          <div className="space-y-16 max-w-6xl mx-auto">
+            {SECTIONS.map((section) => {
+              const sectionArticles = articlesBySection?.[section.id] || [];
+              
+              if (sectionArticles.length === 0) return null;
+              
+              return (
+                <section key={section.id} className="space-y-6">
+                  <div className="border-b border-border pb-3">
+                    <h2 className="text-3xl font-bold text-news-heading capitalize">
+                      {section.name}
+                    </h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {sectionArticles.map((article) => (
+                      <ArticleCard
+                        key={article.id}
+                        id={article.id}
+                        slug={article.slug}
+                        title={article.title}
+                        excerpt={article.excerpt}
+                        featuredImage={article.featured_image_url || undefined}
+                        publishedAt={article.published_at || ''}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-12">
