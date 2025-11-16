@@ -29,24 +29,29 @@ export function UserManagement() {
     }
   });
 
-  // Fetch user emails for all users with roles
-  const { data: userEmails } = useQuery({
-    queryKey: ['user-emails', userRoles],
+  // Fetch user details for all users with roles
+  const { data: userDetails } = useQuery({
+    queryKey: ['user-details', userRoles],
     queryFn: async () => {
       if (!userRoles || userRoles.length === 0) return {};
       
       const uniqueUserIds = [...new Set(userRoles.map(ur => ur.user_id))];
-      const emailMap: Record<string, string> = {};
+      const detailsMap: Record<string, { email: string; firstName?: string; lastName?: string; mobile?: string }> = {};
       
       // Fetch user data for each user ID
       for (const userId of uniqueUserIds) {
         const { data } = await supabase.auth.admin.getUserById(userId);
         if (data?.user?.email) {
-          emailMap[userId] = data.user.email;
+          detailsMap[userId] = {
+            email: data.user.email,
+            firstName: data.user.user_metadata?.first_name,
+            lastName: data.user.user_metadata?.last_name,
+            mobile: data.user.user_metadata?.mobile
+          };
         }
       }
       
-      return emailMap;
+      return detailsMap;
     },
     enabled: !!userRoles && userRoles.length > 0
   });
@@ -138,6 +143,9 @@ export function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>User Email</TableHead>
+              <TableHead>First Name</TableHead>
+              <TableHead>Last Name</TableHead>
+              <TableHead>Mobile</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -146,10 +154,13 @@ export function UserManagement() {
             {userIds.length > 0 ? (
               userIds.map((userId) => {
                 const roles = usersByRole[userId] || [];
-                const email = userEmails?.[userId] || userId;
+                const details = userDetails?.[userId];
                 return (
                   <TableRow key={userId}>
-                    <TableCell className="font-medium">{email}</TableCell>
+                    <TableCell className="font-medium">{details?.email || userId}</TableCell>
+                    <TableCell>{details?.firstName || '-'}</TableCell>
+                    <TableCell>{details?.lastName || '-'}</TableCell>
+                    <TableCell>{details?.mobile || '-'}</TableCell>
                     <TableCell>
                       <div className="flex gap-2 flex-wrap">
                         {roles.length > 0 ? (
@@ -202,7 +213,7 @@ export function UserManagement() {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                   No users with roles yet. Assign roles to users in the database.
                 </TableCell>
               </TableRow>
