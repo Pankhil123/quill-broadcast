@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategoryNav } from '@/components/CategoryNav';
+import { BannerDisplay } from '@/components/BannerDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SECTIONS = [
@@ -11,10 +12,6 @@ const SECTIONS = [
   { id: 'business', name: 'Business' },
   { id: 'technology', name: 'Technology' },
   { id: 'sports', name: 'Sports' },
-  { id: 'entertainment', name: 'Entertainment' },
-  { id: 'world', name: 'World' },
-  { id: 'health', name: 'Health' },
-  { id: 'opinion', name: 'Opinion' },
   { id: 'general', name: 'General' }
 ];
 
@@ -32,7 +29,8 @@ export default function Index() {
           featured_image_url,
           published_at,
           author_id,
-          section
+          section,
+          is_sponsored
         `)
         .eq('status', 'published')
         .order('published_at', { ascending: false });
@@ -57,7 +55,11 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Header />
       
+      <BannerDisplay type="top" />
+      
       <main className="container mx-auto px-4 py-12">
+        <BannerDisplay type="hero" />
+        
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h1 className="text-5xl font-bold text-news-heading mb-4">
             Latest News & Stories
@@ -115,6 +117,7 @@ export default function Index() {
                         excerpt={article.excerpt}
                         featuredImage={article.featured_image_url || undefined}
                         publishedAt={article.published_at || ''}
+                        isSponsored={article.is_sponsored || false}
                       />
                     ))}
                   </div>
@@ -127,11 +130,13 @@ export default function Index() {
                       >
                         More from {section.name} →
                       </Link>
-                    </div>
-                  )}
-                </section>
-              );
-            })}
+                     </div>
+                   )}
+                   
+                   <BannerDisplay type="interstitial" section={section.id} />
+                 </section>
+               );
+             })}
           </div>
         ) : (
           <div className="text-center py-12">

@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategoryNav } from '@/components/CategoryNav';
+import { BannerDisplay } from '@/components/BannerDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -21,10 +22,6 @@ const SECTIONS = [
   { id: 'business', name: 'Business' },
   { id: 'technology', name: 'Technology' },
   { id: 'sports', name: 'Sports' },
-  { id: 'entertainment', name: 'Entertainment' },
-  { id: 'world', name: 'World' },
-  { id: 'health', name: 'Health' },
-  { id: 'opinion', name: 'Opinion' },
   { id: 'general', name: 'General' },
 ];
 
@@ -70,7 +67,12 @@ export default function SectionArticles() {
   return (
     <>
       <Header />
+      
+      <BannerDisplay type="top" section={sectionId} />
+      
       <main className="container mx-auto px-4 py-8">
+        <BannerDisplay type="hero" section={sectionId} />
+        
         <div className="mb-8">
           <Link 
             to="/" 
@@ -113,9 +115,12 @@ export default function SectionArticles() {
                     excerpt={article.excerpt}
                     featuredImage={article.featured_image_url || undefined}
                     publishedAt={article.published_at || ''}
+                    isSponsored={article.is_sponsored || false}
                   />
                 ))}
             </div>
+
+            <BannerDisplay type="interstitial" section={sectionId} />
 
             {articles.length > ARTICLES_PER_PAGE && (
               <Pagination className="mt-12">

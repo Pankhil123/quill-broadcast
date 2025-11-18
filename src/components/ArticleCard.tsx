@@ -10,6 +10,7 @@ interface ArticleCardProps {
   excerpt: string;
   featuredImage?: string;
   publishedAt: string;
+  isSponsored?: boolean;
 }
 
 export function ArticleCard({
@@ -17,17 +18,23 @@ export function ArticleCard({
   title,
   excerpt,
   featuredImage,
-  publishedAt
+  publishedAt,
+  isSponsored = false
 }: ArticleCardProps) {
   return (
     <Link to={`/article/${slug}`} className="group">
       <article className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 h-full flex flex-col">
-        <div className="aspect-video overflow-hidden bg-muted">
+        <div className="aspect-video overflow-hidden bg-muted relative">
           <img
             src={featuredImage || defaultImage}
             alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          {isSponsored && (
+            <div className="absolute top-2 right-2 bg-background/90 px-2 py-0.5 rounded text-[10px] text-muted-foreground uppercase tracking-wide">
+              Sponsored
+            </div>
+          )}
         </div>
         <div className="p-6 flex-1 flex flex-col">
           <h2 className="text-2xl font-bold text-news-heading mb-3 group-hover:text-primary transition-colors line-clamp-2">
