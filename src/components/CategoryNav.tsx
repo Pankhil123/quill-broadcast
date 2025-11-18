@@ -5,10 +5,6 @@ const SECTIONS = [
   { id: 'business', name: 'Business' },
   { id: 'technology', name: 'Technology' },
   { id: 'sports', name: 'Sports' },
-  { id: 'entertainment', name: 'Entertainment' },
-  { id: 'world', name: 'World' },
-  { id: 'health', name: 'Health' },
-  { id: 'opinion', name: 'Opinion' },
   { id: 'general', name: 'General' },
 ];
 

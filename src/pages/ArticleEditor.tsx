@@ -35,6 +35,7 @@ export default function ArticleEditor() {
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
   const [section, setSection] = useState<string>('general');
   const [articleType, setArticleType] = useState<'free' | 'paid'>('free');
+  const [isSponsored, setIsSponsored] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Word counter helper
@@ -78,6 +79,7 @@ export default function ArticleEditor() {
       setStatus(article.status as 'draft' | 'published' | 'scheduled');
       setSection(article.section || 'general');
       setArticleType((article.article_type as 'free' | 'paid') || 'free');
+      setIsSponsored(article.is_sponsored || false);
       if (article.scheduled_at) {
         setScheduledDate(new Date(article.scheduled_at));
       }
@@ -141,6 +143,7 @@ export default function ArticleEditor() {
         status,
         section,
         article_type: articleType,
+        is_sponsored: isSponsored,
         author_id: user.id,
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
@@ -338,6 +341,19 @@ export default function ArticleEditor() {
                       <SelectItem value="paid">Paid - Requires paid subscription</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isSponsored"
+                    checked={isSponsored}
+                    onChange={(e) => setIsSponsored(e.target.checked)}
+                    className="w-4 h-4 rounded border-border"
+                  />
+                  <Label htmlFor="isSponsored" className="cursor-pointer">
+                    Mark as Sponsored Article
+                  </Label>
                 </div>
 
                 <div className="space-y-2">

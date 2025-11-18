@@ -23,6 +23,7 @@ export type Database = {
           excerpt: string
           featured_image_url: string | null
           id: string
+          is_sponsored: boolean
           published_at: string | null
           scheduled_at: string | null
           section: string
@@ -39,6 +40,7 @@ export type Database = {
           excerpt: string
           featured_image_url?: string | null
           id?: string
+          is_sponsored?: boolean
           published_at?: string | null
           scheduled_at?: string | null
           section?: string
@@ -55,11 +57,51 @@ export type Database = {
           excerpt?: string
           featured_image_url?: string | null
           id?: string
+          is_sponsored?: boolean
           published_at?: string | null
           scheduled_at?: string | null
           section?: string
           slug?: string
           status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      banners: {
+        Row: {
+          active: boolean
+          banner_type: Database["public"]["Enums"]["banner_type"]
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          link_url: string | null
+          section: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          banner_type: Database["public"]["Enums"]["banner_type"]
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          link_url?: string | null
+          section?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          banner_type?: Database["public"]["Enums"]["banner_type"]
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          link_url?: string | null
+          section?: string | null
           title?: string
           updated_at?: string
         }
@@ -106,6 +148,7 @@ export type Database = {
         | "paid_reader"
         | "reporter"
         | "admin"
+      banner_type: "hero" | "top" | "interstitial" | "sidebar"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -240,6 +283,7 @@ export const Constants = {
         "reporter",
         "admin",
       ],
+      banner_type: ["hero", "top", "interstitial", "sidebar"],
     },
   },
 } as const
