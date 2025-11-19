@@ -36,6 +36,9 @@ export default function ArticleEditor() {
   const [section, setSection] = useState<string>('general');
   const [articleType, setArticleType] = useState<'free' | 'paid'>('free');
   const [isSponsored, setIsSponsored] = useState(false);
+  const [viewsCount, setViewsCount] = useState(0);
+  const [likesCount, setLikesCount] = useState(0);
+  const [authorName, setAuthorName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Word counter helper
@@ -80,6 +83,9 @@ export default function ArticleEditor() {
       setSection(article.section || 'general');
       setArticleType((article.article_type as 'free' | 'paid') || 'free');
       setIsSponsored(article.is_sponsored || false);
+      setViewsCount(article.views_count || 0);
+      setLikesCount(article.likes_count || 0);
+      setAuthorName(article.author_name || '');
       if (article.scheduled_at) {
         setScheduledDate(new Date(article.scheduled_at));
       }
@@ -144,6 +150,9 @@ export default function ArticleEditor() {
         section,
         article_type: articleType,
         is_sponsored: isSponsored,
+        views_count: viewsCount,
+        likes_count: likesCount,
+        author_name: authorName || null,
         author_id: user.id,
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
@@ -317,15 +326,11 @@ export default function ArticleEditor() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="general">General</SelectItem>
-                      <SelectItem value="politics">Politics</SelectItem>
-                      <SelectItem value="business">Business</SelectItem>
-                      <SelectItem value="technology">Technology</SelectItem>
-                      <SelectItem value="sports">Sports</SelectItem>
-                      <SelectItem value="entertainment">Entertainment</SelectItem>
-                      <SelectItem value="world">World</SelectItem>
-                      <SelectItem value="health">Health</SelectItem>
-                      <SelectItem value="opinion">Opinion</SelectItem>
+                      <SelectItem value="commodities">Commodities</SelectItem>
+                      <SelectItem value="cryptocurrencies">Cryptocurrencies</SelectItem>
+                      <SelectItem value="indices">Indices</SelectItem>
+                      <SelectItem value="equities">Equities</SelectItem>
+                      <SelectItem value="others">Others</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -354,6 +359,42 @@ export default function ArticleEditor() {
                   <Label htmlFor="isSponsored" className="cursor-pointer">
                     Mark as Sponsored Article
                   </Label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="viewsCount">Views Count</Label>
+                    <Input
+                      id="viewsCount"
+                      type="number"
+                      min="0"
+                      value={viewsCount}
+                      onChange={(e) => setViewsCount(parseInt(e.target.value) || 0)}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="likesCount">Likes Count</Label>
+                    <Input
+                      id="likesCount"
+                      type="number"
+                      min="0"
+                      value={likesCount}
+                      onChange={(e) => setLikesCount(parseInt(e.target.value) || 0)}
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="authorName">Author Name</Label>
+                  <Input
+                    id="authorName"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    placeholder="Enter author name (optional)"
+                  />
                 </div>
 
                 <div className="space-y-2">

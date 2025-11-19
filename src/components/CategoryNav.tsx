@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 
 const SECTIONS = [
-  { id: 'politics', name: 'Politics' },
-  { id: 'business', name: 'Business' },
-  { id: 'technology', name: 'Technology' },
-  { id: 'sports', name: 'Sports' },
-  { id: 'general', name: 'General' },
+  { id: 'commodities', name: 'Commodities' },
+  { id: 'cryptocurrencies', name: 'Cryptocurrencies' },
+  { id: 'indices', name: 'Indices' },
+  { id: 'equities', name: 'Equities' },
+  { id: 'others', name: 'Others' },
 ];
 
 interface CategoryNavProps {

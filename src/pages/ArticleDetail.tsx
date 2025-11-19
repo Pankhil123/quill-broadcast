@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { Header } from '@/components/Header';
 import { CategoryNav } from '@/components/CategoryNav';
-import { Calendar, User, ArrowLeft, Lock } from 'lucide-react';
+import { Footer } from '@/components/Footer';
+import { Calendar, User, ArrowLeft, Lock, Eye, ThumbsUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -178,10 +179,10 @@ export default function ArticleDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 flex-1">
         <div className="max-w-3xl mx-auto">
           <Button variant="ghost" asChild className="mb-6">
             <Link to="/">
@@ -212,15 +213,23 @@ export default function ArticleDetail() {
                 {article.title}
               </h1>
 
-              <div className="flex items-center gap-6 text-news-meta mb-8 pb-8 border-b border-news-divider">
+              <div className="flex items-center gap-6 text-news-meta mb-8 pb-8 border-b border-news-divider flex-wrap">
                 <span className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
                   {format(new Date(article.published_at), 'MMMM d, yyyy')}
                 </span>
-                {article.authorEmail && (
-                  <span className="flex items-center gap-2">
+                <span className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  {(article.views_count || 0).toLocaleString()} views
+                </span>
+                <span className="flex items-center gap-2">
+                  <ThumbsUp className="h-5 w-5" />
+                  {(article.likes_count || 0).toLocaleString()} likes
+                </span>
+                {article.author_name && (
+                  <span className="flex items-center gap-2 italic">
                     <User className="h-5 w-5" />
-                    {article.authorEmail.split('@')[0]}
+                    By {article.author_name}
                   </span>
                 )}
                 {article.article_type === 'paid' && (
@@ -249,6 +258,8 @@ export default function ArticleDetail() {
           ) : null}
         </div>
       </main>
+      
+      <Footer />
     </div>
   );
 }
