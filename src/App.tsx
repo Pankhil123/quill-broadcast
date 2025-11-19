@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import ArticleEditor from "./pages/ArticleEditor";
 import SectionArticles from "./pages/SectionArticles";
+import AdvertiseWithUs from "./pages/AdvertiseWithUs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/editor" element={<ArticleEditor />} />
             <Route path="/admin/editor/:id" element={<ArticleEditor />} />
+            <Route path="/advertise" element={<AdvertiseWithUs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

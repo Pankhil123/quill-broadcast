@@ -18,12 +18,14 @@ export type Database = {
         Row: {
           article_type: string
           author_id: string
+          author_name: string | null
           content: string
           created_at: string
           excerpt: string
           featured_image_url: string | null
           id: string
           is_sponsored: boolean
+          likes_count: number
           published_at: string | null
           scheduled_at: string | null
           section: string
@@ -31,16 +33,19 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          views_count: number
         }
         Insert: {
           article_type?: string
           author_id: string
+          author_name?: string | null
           content: string
           created_at?: string
           excerpt: string
           featured_image_url?: string | null
           id?: string
           is_sponsored?: boolean
+          likes_count?: number
           published_at?: string | null
           scheduled_at?: string | null
           section?: string
@@ -48,16 +53,19 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          views_count?: number
         }
         Update: {
           article_type?: string
           author_id?: string
+          author_name?: string | null
           content?: string
           created_at?: string
           excerpt?: string
           featured_image_url?: string | null
           id?: string
           is_sponsored?: boolean
+          likes_count?: number
           published_at?: string | null
           scheduled_at?: string | null
           section?: string
@@ -65,6 +73,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          views_count?: number
         }
         Relationships: []
       }

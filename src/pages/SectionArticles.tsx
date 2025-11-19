@@ -6,6 +6,7 @@ import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategoryNav } from '@/components/CategoryNav';
 import { BannerDisplay } from '@/components/BannerDisplay';
+import { Footer } from '@/components/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -18,11 +19,11 @@ import {
 } from '@/components/ui/pagination';
 
 const SECTIONS = [
-  { id: 'politics', name: 'Politics' },
-  { id: 'business', name: 'Business' },
-  { id: 'technology', name: 'Technology' },
-  { id: 'sports', name: 'Sports' },
-  { id: 'general', name: 'General' },
+  { id: 'commodities', name: 'Commodities' },
+  { id: 'cryptocurrencies', name: 'Cryptocurrencies' },
+  { id: 'indices', name: 'Indices' },
+  { id: 'equities', name: 'Equities' },
+  { id: 'others', name: 'Others' },
 ];
 
 const ARTICLES_PER_PAGE = 12; // 4 rows × 3 columns
@@ -65,12 +66,12 @@ export default function SectionArticles() {
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Header />
       
       <BannerDisplay type="top" section={sectionId} />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 flex-1">
         <BannerDisplay type="hero" section={sectionId} />
         
         <div className="mb-8">
@@ -116,6 +117,9 @@ export default function SectionArticles() {
                     featuredImage={article.featured_image_url || undefined}
                     publishedAt={article.published_at || ''}
                     isSponsored={article.is_sponsored || false}
+                    viewsCount={article.views_count || 0}
+                    likesCount={article.likes_count || 0}
+                    authorName={article.author_name || undefined}
                   />
                 ))}
             </div>
@@ -162,6 +166,8 @@ export default function SectionArticles() {
           </div>
         )}
       </main>
-    </>
+      
+      <Footer />
+    </div>
   );
 }

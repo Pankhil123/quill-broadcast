@@ -5,14 +5,15 @@ import { Header } from '@/components/Header';
 import { ArticleCard } from '@/components/ArticleCard';
 import { CategoryNav } from '@/components/CategoryNav';
 import { BannerDisplay } from '@/components/BannerDisplay';
+import { Footer } from '@/components/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const SECTIONS = [
-  { id: 'politics', name: 'Politics' },
-  { id: 'business', name: 'Business' },
-  { id: 'technology', name: 'Technology' },
-  { id: 'sports', name: 'Sports' },
-  { id: 'general', name: 'General' }
+  { id: 'commodities', name: 'Commodities' },
+  { id: 'cryptocurrencies', name: 'Cryptocurrencies' },
+  { id: 'indices', name: 'Indices' },
+  { id: 'equities', name: 'Equities' },
+  { id: 'others', name: 'Others' }
 ];
 
 export default function Index() {
@@ -30,7 +31,10 @@ export default function Index() {
           published_at,
           author_id,
           section,
-          is_sponsored
+          is_sponsored,
+          views_count,
+          likes_count,
+          author_name
         `)
         .eq('status', 'published')
         .order('published_at', { ascending: false });
@@ -43,7 +47,7 @@ export default function Index() {
 
   // Group articles by section
   const articlesBySection = articles?.reduce((acc, article) => {
-    const section = article.section || 'general';
+    const section = article.section || 'others';
     if (!acc[section]) {
       acc[section] = [];
     }
@@ -52,7 +56,7 @@ export default function Index() {
   }, {} as Record<string, typeof articles>);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
       <BannerDisplay type="top" />
@@ -62,10 +66,10 @@ export default function Index() {
         
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h1 className="text-5xl font-bold text-news-heading mb-4">
-            Latest News & Stories
+            Pattern Analysis and Opportunities
           </h1>
           <p className="text-xl text-news-body">
-            Stay informed with our latest articles and in-depth reporting
+            Stay informed with our latest Patterns and in-depth Analysis
           </p>
         </div>
 
@@ -118,6 +122,9 @@ export default function Index() {
                         featuredImage={article.featured_image_url || undefined}
                         publishedAt={article.published_at || ''}
                         isSponsored={article.is_sponsored || false}
+                        viewsCount={article.views_count || 0}
+                        likesCount={article.likes_count || 0}
+                        authorName={article.author_name || undefined}
                       />
                     ))}
                   </div>
@@ -146,6 +153,8 @@ export default function Index() {
           </div>
         )}
       </main>
+      
+      <Footer />
     </div>
   );
 }

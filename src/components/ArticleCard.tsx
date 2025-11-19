@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Calendar, User } from 'lucide-react';
+import { Calendar, Eye, ThumbsUp } from 'lucide-react';
 import { format } from 'date-fns';
 import defaultImage from '@/assets/default-news-image.jpg';
 
@@ -11,6 +11,9 @@ interface ArticleCardProps {
   featuredImage?: string;
   publishedAt: string;
   isSponsored?: boolean;
+  viewsCount?: number;
+  likesCount?: number;
+  authorName?: string;
 }
 
 export function ArticleCard({
@@ -19,7 +22,10 @@ export function ArticleCard({
   excerpt,
   featuredImage,
   publishedAt,
-  isSponsored = false
+  isSponsored = false,
+  viewsCount = 0,
+  likesCount = 0,
+  authorName
 }: ArticleCardProps) {
   return (
     <Link to={`/article/${slug}`} className="group">
@@ -43,11 +49,24 @@ export function ArticleCard({
           <p className="text-news-body mb-4 flex-1 line-clamp-3">
             {excerpt}
           </p>
-          <div className="flex items-center gap-4 text-sm text-news-meta">
+          <div className="flex items-center gap-4 text-sm text-news-meta flex-wrap">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {format(new Date(publishedAt), 'MMM d, yyyy')}
             </span>
+            <span className="flex items-center gap-1">
+              <Eye className="h-4 w-4" />
+              {viewsCount.toLocaleString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <ThumbsUp className="h-4 w-4" />
+              {likesCount.toLocaleString()}
+            </span>
+            {authorName && (
+              <span className="text-xs italic">
+                By {authorName}
+              </span>
+            )}
           </div>
         </div>
       </article>
