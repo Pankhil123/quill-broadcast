@@ -19,11 +19,11 @@ const BANNER_TYPES = [
 
 const SECTIONS = [
   { value: '', label: 'All Pages' },
-  { value: 'politics', label: 'Politics' },
-  { value: 'general', label: 'General' },
-  { value: 'business', label: 'Business' },
-  { value: 'technology', label: 'Technology' },
-  { value: 'sports', label: 'Sports' },
+  { value: 'commodities', label: 'Commodities' },
+  { value: 'cryptocurrencies', label: 'Cryptocurrencies' },
+  { value: 'indices', label: 'Indices' },
+  { value: 'equities', label: 'Equities' },
+  { value: 'others', label: 'Others' },
 ];
 
 export function BannerManagement() {
