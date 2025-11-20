@@ -11,7 +11,7 @@ export function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img src="/lovable-uploads/32e4b16e-b4c5-4ee7-bc13-7ddb23bb5b88.png" alt="ToadToe Logo" className="h-10 w-10" />
+            <img src="/favicon.png" alt="ToadToe Logo" className="h-10 w-10" />
             <h1 className="text-2xl font-bold text-news-heading">ToadToe</h1>
           </Link>
           
@@ -22,6 +22,9 @@ export function Header() {
                 Advertise With Us
               </Link>
             </Button>
+            <Link to="/become-an-expert" className="text-sm font-medium text-news-meta hover:text-primary transition-colors">
+              Become an Expert
+            </Link>
             {user ? (
               <>
                 <span className="text-sm text-news-meta">
