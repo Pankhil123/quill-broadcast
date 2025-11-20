@@ -28,7 +28,7 @@ const SECTIONS = [
 
 export function BannerManagement() {
   const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(true);
   const [formData, setFormData] = useState<{
     title: string;
     banner_type: 'hero' | 'top' | 'interstitial' | 'sidebar';

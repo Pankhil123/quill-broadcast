@@ -33,6 +33,7 @@ export default function ArticleEditor() {
   const [featuredImageFile, setFeaturedImageFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'draft' | 'published' | 'scheduled'>('draft');
   const [scheduledDate, setScheduledDate] = useState<Date | undefined>();
+  const [publishedAt, setPublishedAt] = useState<string>('');
   const [section, setSection] = useState<string>('general');
   const [articleType, setArticleType] = useState<'free' | 'paid'>('free');
   const [isSponsored, setIsSponsored] = useState(false);
@@ -86,6 +87,9 @@ export default function ArticleEditor() {
       setViewsCount(article.views_count || 0);
       setLikesCount(article.likes_count || 0);
       setAuthorName(article.author_name || '');
+      if (article.published_at) {
+        setPublishedAt(article.published_at.slice(0, 16));
+      }
       if (article.scheduled_at) {
         setScheduledDate(new Date(article.scheduled_at));
       }
@@ -154,7 +158,9 @@ export default function ArticleEditor() {
         likes_count: likesCount,
         author_name: authorName || null,
         author_id: user.id,
-        published_at: status === 'published' ? new Date().toISOString() : null,
+        published_at: status === 'published'
+          ? (publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString())
+          : null,
         scheduled_at: status === 'scheduled' && scheduledDate ? scheduledDate.toISOString() : null
       };
 
@@ -395,6 +401,19 @@ export default function ArticleEditor() {
                     onChange={(e) => setAuthorName(e.target.value)}
                     placeholder="Enter author name (optional)"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="publishedAt">Published Date (optional)</Label>
+                  <Input
+                    id="publishedAt"
+                    type="datetime-local"
+                    value={publishedAt}
+                    onChange={(e) => setPublishedAt(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty to use the current time when publishing.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
