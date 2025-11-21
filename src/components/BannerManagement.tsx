@@ -8,13 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Upload } from 'lucide-react';
 
 const BANNER_TYPES = [
-  { value: 'hero', label: 'Hero Banner' },
-  { value: 'top', label: 'Top Banner' },
-  { value: 'interstitial', label: 'Interstitial Banner' },
-  { value: 'sidebar', label: 'Sidebar Banner' },
+  { value: 'hero', label: 'Hero Banner', description: 'Large banner below header', size: '1920x600px' },
+  { value: 'header', label: 'Header Banner', description: 'Full-width banner at top', size: '1920x120px' },
+  { value: 'interstitial', label: 'Interstitial Banner', description: 'Between content sections', size: '1200x400px' },
 ];
 
 const SECTIONS = [
@@ -28,10 +27,11 @@ const SECTIONS = [
 
 export function BannerManagement() {
   const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<{
     title: string;
-    banner_type: 'hero' | 'top' | 'interstitial' | 'sidebar';
+    banner_type: 'hero' | 'header' | 'interstitial';
     image_url: string;
     link_url: string;
     section: string;
@@ -58,6 +58,48 @@ export function BannerManagement() {
     },
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `banners/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('article-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('article-images')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: publicUrl });
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const createBanner = useMutation({
     mutationFn: async (newBanner: typeof formData) => {
       const { data, error } = await supabase
@@ -71,6 +113,7 @@ export function BannerManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
       toast.success('Banner created successfully');
       setShowForm(false);
       setFormData({
@@ -98,6 +141,7 @@ export function BannerManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
       toast.success('Banner deleted successfully');
     },
     onError: () => {
@@ -116,6 +160,7 @@ export function BannerManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['banners'] });
       toast.success('Banner status updated');
     },
     onError: () => {
@@ -125,6 +170,12 @@ export function BannerManagement() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.image_url) {
+      toast.error('Please upload an image');
+      return;
+    }
+    
     createBanner.mutate(formData);
   };
 
@@ -135,12 +186,31 @@ export function BannerManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Banner Management</h2>
-        <Button type="button" onClick={() => setShowForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Banner
+        <div>
+          <h2 className="text-2xl font-bold">Banner Management</h2>
+          <p className="text-muted-foreground text-sm mt-1">Upload and manage promotional banners</p>
+        </div>
+        <Button onClick={() => setShowForm(!showForm)}>
+          {showForm ? 'Cancel' : 'Add Banner'}
         </Button>
       </div>
+
+      {/* Banner Size Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Recommended Banner Sizes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3">
+            {BANNER_TYPES.map((type) => (
+              <div key={type.value} className="flex justify-between items-center text-sm">
+                <span className="font-medium">{type.label}:</span>
+                <span className="text-muted-foreground">{type.size} ({type.description})</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {showForm && (
         <Card>
@@ -156,6 +226,7 @@ export function BannerManagement() {
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
+                  placeholder="e.g., Summer Sale Banner"
                 />
               </div>
 
@@ -163,7 +234,9 @@ export function BannerManagement() {
                 <Label htmlFor="banner_type">Banner Type</Label>
                 <Select
                   value={formData.banner_type}
-                  onValueChange={(value: 'hero' | 'top' | 'interstitial' | 'sidebar') => setFormData({ ...formData, banner_type: value })}
+                  onValueChange={(value: 'hero' | 'header' | 'interstitial') => 
+                    setFormData({ ...formData, banner_type: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -171,7 +244,7 @@ export function BannerManagement() {
                   <SelectContent>
                     {BANNER_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
-                        {type.label}
+                        {type.label} - {type.size}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -179,14 +252,31 @@ export function BannerManagement() {
               </div>
 
               <div>
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  required
-                />
+                <Label htmlFor="image">Banner Image</Label>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploading}
+                    />
+                    <Button type="button" disabled={uploading} variant="outline">
+                      <Upload className="h-4 w-4 mr-2" />
+                      {uploading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                  </div>
+                  {formData.image_url && (
+                    <div className="relative w-full h-32 border rounded overflow-hidden">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Banner preview" 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -196,11 +286,12 @@ export function BannerManagement() {
                   type="url"
                   value={formData.link_url}
                   onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
+                  placeholder="https://example.com"
                 />
               </div>
 
               <div>
-                <Label htmlFor="section">Section</Label>
+                <Label htmlFor="section">Display On</Label>
                 <Select
                   value={formData.section}
                   onValueChange={(value) => setFormData({ ...formData, section: value })}
@@ -218,51 +309,62 @@ export function BannerManagement() {
                 </Select>
               </div>
 
-              <div className="flex gap-4">
-                <Button type="submit">Create Banner</Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
-                  Cancel
-                </Button>
-              </div>
+              <Button type="submit" disabled={uploading || !formData.image_url}>
+                Create Banner
+              </Button>
             </form>
           </CardContent>
         </Card>
       )}
 
       <div className="grid gap-4">
-        {banners?.map((banner) => (
-          <Card key={banner.id}>
-            <CardContent className="flex items-center justify-between p-4">
-              <div className="flex-1">
-                <h3 className="font-semibold">{banner.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {BANNER_TYPES.find(t => t.value === banner.banner_type)?.label} • 
-                  {banner.section ? ` ${SECTIONS.find(s => s.value === banner.section)?.label}` : ' All Pages'}
-                </p>
-                <a href={banner.image_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                  View Image
-                </a>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor={`active-${banner.id}`}>Active</Label>
-                  <Switch
-                    id={`active-${banner.id}`}
-                    checked={banner.active}
-                    onCheckedChange={(checked) => toggleBanner.mutate({ id: banner.id, active: checked })}
-                  />
+        {banners && banners.length > 0 ? (
+          banners.map((banner) => (
+            <Card key={banner.id}>
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-32 h-20 border rounded overflow-hidden flex-shrink-0">
+                    <img 
+                      src={banner.image_url} 
+                      alt={banner.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold">{banner.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {BANNER_TYPES.find(t => t.value === banner.banner_type)?.label} • 
+                      {banner.section ? ` ${SECTIONS.find(s => s.value === banner.section)?.label}` : ' All Pages'}
+                    </p>
+                  </div>
                 </div>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => deleteBanner.mutate(banner.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor={`active-${banner.id}`}>Active</Label>
+                    <Switch
+                      id={`active-${banner.id}`}
+                      checked={banner.active}
+                      onCheckedChange={(checked) => toggleBanner.mutate({ id: banner.id, active: checked })}
+                    />
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => deleteBanner.mutate(banner.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-muted-foreground">No banners created yet. Click "Add Banner" to get started.</p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   );

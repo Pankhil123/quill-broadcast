@@ -157,7 +157,7 @@ export type Database = {
         | "paid_reader"
         | "reporter"
         | "admin"
-      banner_type: "hero" | "top" | "interstitial" | "sidebar"
+      banner_type: "hero" | "header" | "interstitial"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -292,7 +292,7 @@ export const Constants = {
         "reporter",
         "admin",
       ],
-      banner_type: ["hero", "top", "interstitial", "sidebar"],
+      banner_type: ["hero", "header", "interstitial"],
     },
   },
 } as const

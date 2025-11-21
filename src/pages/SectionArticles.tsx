@@ -69,7 +69,7 @@ export default function SectionArticles() {
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <BannerDisplay type="top" section={sectionId} />
+      <BannerDisplay type="header" section={sectionId} />
       
       <main className="container mx-auto px-4 py-8 flex-1">
         <BannerDisplay type="hero" section={sectionId} />
