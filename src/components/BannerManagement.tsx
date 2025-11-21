@@ -26,193 +26,195 @@ const SECTIONS = [
 ];
 
 export function BannerManagement() {
-  const queryClient = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [formData, setFormData] = useState<{
-    title: string;
-    banner_type: 'hero' | 'header' | 'interstitial';
-    image_url: string;
-    link_url: string;
-    section: string;
-    active: boolean;
-  }>({
-    title: '',
-    banner_type: 'hero',
-    image_url: '',
-    link_url: '',
-    section: '',
-    active: true,
-  });
+  try {
+    const queryClient = useQueryClient();
+    const [uploading, setUploading] = useState(false);
+    const [formData, setFormData] = useState<{
+      title: string;
+      banner_type: 'hero' | 'header' | 'interstitial';
+      image_url: string;
+      link_url: string;
+      section: string;
+      active: boolean;
+    }>({
+      title: '',
+      banner_type: 'hero',
+      image_url: '',
+      link_url: '',
+      section: '',
+      active: true,
+    });
 
-  const { data: banners, isLoading } = useQuery({
-    queryKey: ['banners-admin'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('banners')
-        .select('*')
-        .order('display_order', { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    },
-  });
+    const { data: banners, isLoading, error } = useQuery({
+      queryKey: ['banners-admin'],
+      queryFn: async () => {
+        const { data, error } = await supabase
+          .from('banners')
+          .select('*')
+          .order('display_order', { ascending: true });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        if (error) throw error;
+        return data;
+      },
+    });
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file');
-      return;
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please upload an image file');
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+
+      setUploading(true);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('article-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('article-images')
+          .getPublicUrl(filePath);
+
+        setFormData((prev) => ({ ...prev, image_url: data.publicUrl }));
+        toast.success('Image uploaded successfully');
+      } catch (err) {
+        console.error('Banner image upload error:', err);
+        toast.error('Failed to upload image');
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    const createBanner = useMutation({
+      mutationFn: async (newBanner: typeof formData) => {
+        const { data, error } = await supabase
+          .from('banners')
+          .insert([newBanner])
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+        queryClient.invalidateQueries({ queryKey: ['banners'] });
+        toast.success('Banner created successfully');
+        setFormData({
+          title: '',
+          banner_type: 'hero',
+          image_url: '',
+          link_url: '',
+          section: '',
+          active: true,
+        });
+      },
+      onError: (err) => {
+        console.error('Create banner error:', err);
+        toast.error('Failed to create banner');
+      },
+    });
+
+    const deleteBanner = useMutation({
+      mutationFn: async (id: string) => {
+        const { error } = await supabase
+          .from('banners')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+        queryClient.invalidateQueries({ queryKey: ['banners'] });
+        toast.success('Banner deleted successfully');
+      },
+      onError: (err) => {
+        console.error('Delete banner error:', err);
+        toast.error('Failed to delete banner');
+      },
+    });
+
+    const toggleBanner = useMutation({
+      mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+        const { error } = await supabase
+          .from('banners')
+          .update({ active })
+          .eq('id', id);
+
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
+        queryClient.invalidateQueries({ queryKey: ['banners'] });
+        toast.success('Banner status updated');
+      },
+      onError: (err) => {
+        console.error('Toggle banner error:', err);
+        toast.error('Failed to update banner');
+      },
+    });
+
+    const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+
+      if (!formData.image_url) {
+        toast.error('Please upload a banner image');
+        return;
+      }
+
+      createBanner.mutate(formData);
+    };
+
+    if (isLoading) {
+      return <div>Loading banners...</div>;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
-      return;
+    if (error) {
+      console.error('Load banners error:', error);
+      return <div>Failed to load banners.</div>;
     }
 
-    setUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `banners/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('article-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('article-images')
-        .getPublicUrl(filePath);
-
-      setFormData({ ...formData, image_url: publicUrl });
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const createBanner = useMutation({
-    mutationFn: async (newBanner: typeof formData) => {
-      const { data, error } = await supabase
-        .from('banners')
-        .insert([newBanner])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
-      queryClient.invalidateQueries({ queryKey: ['banners'] });
-      toast.success('Banner created successfully');
-      setShowForm(false);
-      setFormData({
-        title: '',
-        banner_type: 'hero',
-        image_url: '',
-        link_url: '',
-        section: '',
-        active: true,
-      });
-    },
-    onError: () => {
-      toast.error('Failed to create banner');
-    },
-  });
-
-  const deleteBanner = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('banners')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
-      queryClient.invalidateQueries({ queryKey: ['banners'] });
-      toast.success('Banner deleted successfully');
-    },
-    onError: () => {
-      toast.error('Failed to delete banner');
-    },
-  });
-
-  const toggleBanner = useMutation({
-    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase
-        .from('banners')
-        .update({ active })
-        .eq('id', id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['banners-admin'] });
-      queryClient.invalidateQueries({ queryKey: ['banners'] });
-      toast.success('Banner status updated');
-    },
-    onError: () => {
-      toast.error('Failed to update banner');
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.image_url) {
-      toast.error('Please upload an image');
-      return;
-    }
-    
-    createBanner.mutate(formData);
-  };
-
-  if (isLoading) {
-    return <div>Loading banners...</div>;
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    return (
+      <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold">Banner Management</h2>
-          <p className="text-muted-foreground text-sm mt-1">Upload and manage promotional banners</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            Upload and manage promotional banners for different areas of the site.
+          </p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Cancel' : 'Add Banner'}
-        </Button>
-      </div>
 
-      {/* Banner Size Guide */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Recommended Banner Sizes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3">
-            {BANNER_TYPES.map((type) => (
-              <div key={type.value} className="flex justify-between items-center text-sm">
-                <span className="font-medium">{type.label}:</span>
-                <span className="text-muted-foreground">{type.size} ({type.description})</span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        {/* Banner Size Guide */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recommended Banner Sizes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3">
+              {BANNER_TYPES.map((type) => (
+                <div key={type.value} className="flex justify-between items-center text-sm">
+                  <span className="font-medium">{type.label}:</span>
+                  <span className="text-muted-foreground">{type.size} ({type.description})</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-      {showForm && (
+        {/* Always show form to avoid any toggle issues */}
         <Card>
           <CardHeader>
             <CardTitle>Create New Banner</CardTitle>
@@ -234,7 +236,7 @@ export function BannerManagement() {
                 <Label htmlFor="banner_type">Banner Type</Label>
                 <Select
                   value={formData.banner_type}
-                  onValueChange={(value: 'hero' | 'header' | 'interstitial') => 
+                  onValueChange={(value: 'hero' | 'header' | 'interstitial') =>
                     setFormData({ ...formData, banner_type: value })
                   }
                 >
@@ -254,7 +256,7 @@ export function BannerManagement() {
               <div>
                 <Label htmlFor="image">Banner Image</Label>
                 <div className="space-y-2">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Input
                       id="image"
                       type="file"
@@ -269,9 +271,9 @@ export function BannerManagement() {
                   </div>
                   {formData.image_url && (
                     <div className="relative w-full h-32 border rounded overflow-hidden">
-                      <img 
-                        src={formData.image_url} 
-                        alt="Banner preview" 
+                      <img
+                        src={formData.image_url}
+                        alt="Banner preview"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -309,63 +311,80 @@ export function BannerManagement() {
                 </Select>
               </div>
 
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="active"
+                  checked={formData.active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, active: checked })}
+                />
+                <Label htmlFor="active">Active</Label>
+              </div>
+
               <Button type="submit" disabled={uploading || !formData.image_url}>
                 Create Banner
               </Button>
             </form>
           </CardContent>
         </Card>
-      )}
 
-      <div className="grid gap-4">
-        {banners && banners.length > 0 ? (
-          banners.map((banner) => (
-            <Card key={banner.id}>
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-32 h-20 border rounded overflow-hidden flex-shrink-0">
-                    <img 
-                      src={banner.image_url} 
-                      alt={banner.title}
-                      className="w-full h-full object-cover"
-                    />
+        {/* Existing banners list */}
+        <div className="grid gap-4">
+          {banners && banners.length > 0 ? (
+            banners.map((banner) => (
+              <Card key={banner.id}>
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-32 h-20 border rounded overflow-hidden flex-shrink-0">
+                      <img
+                        src={banner.image_url}
+                        alt={banner.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{banner.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {BANNER_TYPES.find((t) => t.value === banner.banner_type)?.label} •
+                        {banner.section ? ` ${SECTIONS.find((s) => s.value === banner.section)?.label}` : ' All Pages'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{banner.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {BANNER_TYPES.find(t => t.value === banner.banner_type)?.label} • 
-                      {banner.section ? ` ${SECTIONS.find(s => s.value === banner.section)?.label}` : ' All Pages'}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor={`active-${banner.id}`}>Active</Label>
+                      <Switch
+                        id={`active-${banner.id}`}
+                        checked={banner.active}
+                        onCheckedChange={(checked) =>
+                          toggleBanner.mutate({ id: banner.id, active: checked })
+                        }
+                      />
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => deleteBanner.mutate(banner.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`active-${banner.id}`}>Active</Label>
-                    <Switch
-                      id={`active-${banner.id}`}
-                      checked={banner.active}
-                      onCheckedChange={(checked) => toggleBanner.mutate({ id: banner.id, active: checked })}
-                    />
-                  </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => deleteBanner.mutate(banner.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <CardContent className="text-center py-8">
+                <p className="text-muted-foreground">
+                  No banners created yet. Use the form above to add your first banner.
+                </p>
               </CardContent>
             </Card>
-          ))
-        ) : (
-          <Card>
-            <CardContent className="text-center py-8">
-              <p className="text-muted-foreground">No banners created yet. Click "Add Banner" to get started.</p>
-            </CardContent>
-          </Card>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (err) {
+    console.error('BannerManagement render error:', err);
+    return <div>Something went wrong while loading the banner manager.</div>;
+  }
 }
