@@ -59,7 +59,7 @@ export default function Index() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
-      <BannerDisplay type="top" />
+      <BannerDisplay type="header" />
       
       <main className="container mx-auto px-4 py-12">
         <BannerDisplay type="hero" />
@@ -126,18 +126,18 @@ export default function Index() {
                         likesCount={article.likes_count || 0}
                         authorName={article.author_name || undefined}
                       />
-                    ))}
-                  </div>
-                  
-                  {hasMore && (
-                    <div className="text-center pt-4">
-                      <Link 
-                        to={`/section/${section.id}`}
-                        className="inline-flex items-center gap-2 text-primary hover:underline font-medium text-lg"
-                      >
-                        More from {section.name} →
-                      </Link>
-                     </div>
+                     ))}
+                   </div>
+                   
+                   {hasMore && (
+                     <div className="text-center pt-4">
+                       <Link 
+                         to={`/section/${section.id}`}
+                         className="inline-flex items-center gap-2 text-primary hover:underline font-medium text-lg"
+                       >
+                         More from {section.name} →
+                       </Link>
+                      </div>
                    )}
                    
                    <BannerDisplay type="interstitial" section={section.id} />

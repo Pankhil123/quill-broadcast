@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BannerDisplayProps {
-  type: 'hero' | 'top' | 'interstitial' | 'sidebar';
+  type: 'hero' | 'header' | 'interstitial';
   section?: string;
 }
 
@@ -62,16 +62,16 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
 
   if (type === 'hero') {
     return (
-      <div className="w-full mb-8">
+      <div className="w-full mb-8 max-w-6xl mx-auto">
         {banners.map(renderBanner)}
       </div>
     );
   }
 
-  if (type === 'top') {
+  if (type === 'header') {
     return (
-      <div className="w-full bg-card border-b border-border mb-4">
-        <div className="max-w-6xl mx-auto">
+      <div className="w-full bg-card border-b border-border">
+        <div className="max-w-7xl mx-auto">
           {banners.map(renderBanner)}
         </div>
       </div>
@@ -80,15 +80,7 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
 
   if (type === 'interstitial') {
     return (
-      <div className="w-full my-8 p-4 bg-muted/50 rounded-lg">
-        {banners.map(renderBanner)}
-      </div>
-    );
-  }
-
-  if (type === 'sidebar') {
-    return (
-      <div className="space-y-4">
+      <div className="w-full my-8 max-w-4xl mx-auto">
         {banners.map(renderBanner)}
       </div>
     );
