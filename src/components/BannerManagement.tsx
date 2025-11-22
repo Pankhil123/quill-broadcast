@@ -17,7 +17,7 @@ const BANNER_TYPES = [
 ];
 
 const SECTIONS = [
-  { value: '', label: 'All Pages' },
+  { value: 'all', label: 'All Pages' },
   { value: 'commodities', label: 'Commodities' },
   { value: 'cryptocurrencies', label: 'Cryptocurrencies' },
   { value: 'indices', label: 'Indices' },
@@ -41,7 +41,7 @@ export function BannerManagement() {
       banner_type: 'hero',
       image_url: '',
       link_url: '',
-      section: '',
+      section: 'all',
       active: true,
     });
 
@@ -118,7 +118,7 @@ export function BannerManagement() {
           banner_type: 'hero',
           image_url: '',
           link_url: '',
-          section: '',
+          section: 'all',
           active: true,
         });
       },
@@ -345,7 +345,7 @@ export function BannerManagement() {
                       <h3 className="font-semibold">{banner.title}</h3>
                       <p className="text-sm text-muted-foreground">
                         {BANNER_TYPES.find((t) => t.value === banner.banner_type)?.label} •
-                        {banner.section ? ` ${SECTIONS.find((s) => s.value === banner.section)?.label}` : ' All Pages'}
+                        {banner.section && banner.section !== 'all' ? ` ${SECTIONS.find((s) => s.value === banner.section)?.label}` : ' All Pages'}
                       </p>
                     </div>
                   </div>

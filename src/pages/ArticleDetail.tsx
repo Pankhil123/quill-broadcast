@@ -1,5 +1,5 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/lib/auth';
 import { Header } from '@/components/Header';
@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 import defaultImage from '@/assets/default-news-image.jpg';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const ARTICLE_VIEW_KEY = 'articleViewCount';
 const FREE_ARTICLE_LIMIT = 3;
@@ -20,6 +21,7 @@ export default function ArticleDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
   const [viewCount, setViewCount] = useState(0);
+  const queryClient = useQueryClient();
 
   // Track article views for non-authenticated users
   useEffect(() => {
@@ -72,6 +74,76 @@ export default function ArticleDetail() {
     },
     enabled: !!slug
   });
+
+  // Fetch user's like status for this article
+  const { data: userLike } = useQuery({
+    queryKey: ['article-like', article?.id, user?.id],
+    queryFn: async () => {
+      if (!user || !article) return null;
+      const { data } = await supabase
+        .from('article_likes')
+        .select('*')
+        .eq('article_id', article.id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user && !!article
+  });
+
+  // Fetch total user likes for this article
+  const { data: userLikesCount } = useQuery({
+    queryKey: ['article-user-likes', article?.id],
+    queryFn: async () => {
+      if (!article) return 0;
+      const { count } = await supabase
+        .from('article_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('article_id', article.id);
+      return count || 0;
+    },
+    enabled: !!article
+  });
+
+  // Like/Unlike mutation
+  const toggleLike = useMutation({
+    mutationFn: async () => {
+      if (!user || !article) throw new Error('Must be logged in');
+
+      if (userLike) {
+        // Unlike
+        const { error } = await supabase
+          .from('article_likes')
+          .delete()
+          .eq('id', userLike.id);
+        if (error) throw error;
+      } else {
+        // Like
+        const { error } = await supabase
+          .from('article_likes')
+          .insert({ article_id: article.id, user_id: user.id });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['article-like', article?.id, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['article-user-likes', article?.id] });
+    },
+    onError: (error) => {
+      console.error('Toggle like error:', error);
+      toast.error('Failed to update like');
+    }
+  });
+
+  const handleLikeClick = () => {
+    if (!user) {
+      toast.error('Please sign in to like articles');
+      return;
+    }
+    toggleLike.mutate();
+  };
+
+  const totalLikes = (article?.likes_count || 0) + (userLikesCount || 0);
 
   // Increment view count for non-authenticated users
   useEffect(() => {
@@ -222,10 +294,18 @@ export default function ArticleDetail() {
                   <Eye className="h-5 w-5" />
                   {(article.views_count || 0).toLocaleString()} views
                 </span>
-                <span className="flex items-center gap-2">
-                  <ThumbsUp className="h-5 w-5" />
-                  {(article.likes_count || 0).toLocaleString()} likes
-                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`flex items-center gap-2 hover:text-primary transition-colors ${
+                    userLike ? 'text-primary' : ''
+                  }`}
+                  onClick={handleLikeClick}
+                  disabled={toggleLike.isPending}
+                >
+                  <ThumbsUp className={`h-5 w-5 ${userLike ? 'fill-current' : ''}`} />
+                  {totalLikes.toLocaleString()} {totalLikes === 1 ? 'like' : 'likes'}
+                </Button>
                 {article.author_name && (
                   <span className="flex items-center gap-2 italic">
                     <User className="h-5 w-5" />
