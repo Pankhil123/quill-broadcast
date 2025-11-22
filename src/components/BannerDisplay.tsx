@@ -39,7 +39,7 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
       <img
         src={banner.image_url}
         alt={banner.title}
-        className="w-full h-auto object-cover"
+        className="w-full h-auto object-cover rounded-lg shadow-lg transition-transform hover:scale-[1.02]"
       />
     );
 
@@ -62,7 +62,7 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
 
   if (type === 'hero') {
     return (
-      <div className="w-full mb-8 max-w-6xl mx-auto">
+      <div className="w-full mb-8 max-w-6xl mx-auto px-4">
         {banners.map(renderBanner)}
       </div>
     );
@@ -70,8 +70,8 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
 
   if (type === 'header') {
     return (
-      <div className="w-full bg-card border-b border-border">
-        <div className="max-w-7xl mx-auto">
+      <div className="w-full bg-gradient-to-b from-card to-background border-b border-border shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-2">
           {banners.map(renderBanner)}
         </div>
       </div>
@@ -80,7 +80,7 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
 
   if (type === 'interstitial') {
     return (
-      <div className="w-full my-8 max-w-4xl mx-auto">
+      <div className="w-full my-8 max-w-4xl mx-auto px-4">
         {banners.map(renderBanner)}
       </div>
     );

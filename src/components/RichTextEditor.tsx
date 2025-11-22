@@ -1,6 +1,10 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +18,8 @@ import {
   Quote,
   Undo,
   Redo,
-  ImagePlus
+  ImagePlus,
+  Table as TableIcon
 } from 'lucide-react';
 import { useRef } from 'react';
 
@@ -28,11 +33,23 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        paragraph: {
+          HTMLAttributes: {
+            class: 'mb-4',
+          },
+        },
+      }),
       Image.configure({
         inline: true,
         allowBase64: true,
       }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -134,6 +151,14 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         >
           <Quote className="h-4 w-4" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        >
+          <TableIcon className="h-4 w-4" />
+        </Button>
         <div className="w-px h-6 bg-border mx-1" />
         <Button
           type="button"
@@ -173,7 +198,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
       <div className="p-4 min-h-[400px] bg-background">
         <EditorContent 
           editor={editor} 
-          className="prose prose-sm max-w-none focus:outline-none [&_.ProseMirror]:min-h-[350px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:p-4 [&_.ProseMirror]:border [&_.ProseMirror]:border-input [&_.ProseMirror]:rounded-md"
+          className="prose prose-sm max-w-none focus:outline-none [&_.ProseMirror]:min-h-[350px] [&_.ProseMirror]:outline-none [&_.ProseMirror]:p-4 [&_.ProseMirror]:border [&_.ProseMirror]:border-input [&_.ProseMirror]:rounded-md [&_.ProseMirror_table]:border-collapse [&_.ProseMirror_table]:w-full [&_.ProseMirror_td]:border [&_.ProseMirror_td]:border-border [&_.ProseMirror_td]:p-2 [&_.ProseMirror_th]:border [&_.ProseMirror_th]:border-border [&_.ProseMirror_th]:p-2 [&_.ProseMirror_th]:bg-muted [&_.ProseMirror_th]:font-bold"
         />
       </div>
     </div>
