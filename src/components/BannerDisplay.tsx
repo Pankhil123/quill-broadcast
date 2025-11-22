@@ -16,11 +16,11 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
         .eq('banner_type', type)
         .eq('active', true);
 
-      // Filter by section: null/empty means all pages, or match specific section
+      // Filter by section: 'all' or null means all pages, or match specific section
       if (section) {
-        query = query.or(`section.is.null,section.eq.${section}`);
+        query = query.or(`section.eq.all,section.eq.${section}`);
       } else {
-        query = query.is('section', null);
+        query = query.eq('section', 'all');
       }
 
       const { data, error } = await query.order('display_order', { ascending: true });
