@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import defaultImage from '@/assets/default-news-image.jpg';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -21,6 +22,7 @@ export default function ArticleDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
   const [viewCount, setViewCount] = useState(0);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Track article views for non-authenticated users
@@ -250,6 +252,27 @@ export default function ArticleDetail() {
     return `<p>${preview}</p>`;
   };
 
+  // Add click handlers to images after content is rendered
+  useEffect(() => {
+    const images = document.querySelectorAll('.prose img');
+    const handleImageClick = (e: Event) => {
+      const target = e.target as HTMLImageElement;
+      setEnlargedImage(target.src);
+    };
+
+    images.forEach(img => {
+      const htmlImg = img as HTMLImageElement;
+      htmlImg.style.cursor = 'pointer';
+      htmlImg.addEventListener('click', handleImageClick);
+    });
+
+    return () => {
+      images.forEach(img => {
+        img.removeEventListener('click', handleImageClick);
+      });
+    };
+  }, [article]);
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -329,7 +352,7 @@ export default function ArticleDetail() {
             </div>
 
               <div 
-                className="prose prose-lg max-w-none text-news-body"
+                className="prose prose-lg max-w-none text-news-body [&_table]:border-collapse [&_table]:w-full [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_th]:font-bold"
                 dangerouslySetInnerHTML={{ __html: getArticleContent() }}
               />
 
@@ -340,6 +363,18 @@ export default function ArticleDetail() {
       </main>
       
       <Footer />
+
+      <Dialog open={!!enlargedImage} onOpenChange={() => setEnlargedImage(null)}>
+        <DialogContent className="max-w-7xl w-full p-0 overflow-hidden">
+          {enlargedImage && (
+            <img
+              src={enlargedImage}
+              alt="Enlarged view"
+              className="w-full h-auto"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
