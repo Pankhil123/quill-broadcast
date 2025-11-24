@@ -43,11 +43,11 @@ export default function BecomeAnExpert() {
                   To become an expert contributor on ToadToe, write to us at:
                 </p>
                 <a
-                  href="mailto:contact@toadtoe.com"
+                  href="mailto:contact@toadtoe.online"
                   className="inline-flex items-center gap-2 text-primary font-medium hover:underline"
                 >
                   <Mail className="h-5 w-5" />
-                  contact@toadtoe.com
+                  contact@toadtoe.online
                 </a>
               </div>
             </CardContent>
