@@ -57,9 +57,9 @@ export default function AdvertiseWithUs() {
                   For advertising inquiries, rates, and availability, please contact our team:
                 </p>
                 <Button asChild size="lg">
-                  <a href="mailto:contact@toadtoe.com" className="flex items-center gap-2">
+                  <a href="mailto:contact@toadtoe.online" className="flex items-center gap-2">
                     <Mail className="h-5 w-5" />
-                    contact@toadtoe.com
+                    contact@toadtoe.online
                   </a>
                 </Button>
               </div>
