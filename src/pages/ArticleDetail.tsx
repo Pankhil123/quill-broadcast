@@ -254,24 +254,29 @@ export default function ArticleDetail() {
 
   // Add click handlers to images after content is rendered
   useEffect(() => {
-    const images = document.querySelectorAll('.prose img');
-    const handleImageClick = (e: Event) => {
-      const target = e.target as HTMLImageElement;
-      setEnlargedImage(target.src);
-    };
+    // Use setTimeout to ensure DOM is updated after dangerouslySetInnerHTML
+    const timer = setTimeout(() => {
+      const images = document.querySelectorAll('.prose img');
+      const handleImageClick = (e: Event) => {
+        const target = e.target as HTMLImageElement;
+        setEnlargedImage(target.src);
+      };
 
-    images.forEach(img => {
-      const htmlImg = img as HTMLImageElement;
-      htmlImg.style.cursor = 'pointer';
-      htmlImg.addEventListener('click', handleImageClick);
-    });
-
-    return () => {
       images.forEach(img => {
-        img.removeEventListener('click', handleImageClick);
+        const htmlImg = img as HTMLImageElement;
+        htmlImg.style.cursor = 'pointer';
+        htmlImg.addEventListener('click', handleImageClick);
       });
-    };
-  }, [article]);
+
+      return () => {
+        images.forEach(img => {
+          img.removeEventListener('click', handleImageClick);
+        });
+      };
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [article?.content]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
