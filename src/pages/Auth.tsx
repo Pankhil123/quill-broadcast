@@ -45,13 +45,49 @@ export default function Auth() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signUp(email, password, firstName, lastName, mobile);
-    setLoading(false);
+    
+    try {
+      // Call custom signup endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/custom-signup`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            firstName,
+            lastName,
+            mobileNumber: mobile,
+          }),
+        }
+      );
 
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success('Account created! Please check your email.');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      toast.success('Account created successfully! You can now sign in.');
+      // Clear form and switch to sign in tab
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setMobile('');
+      
+      // Wait a moment then auto-sign in
+      setTimeout(() => {
+        document.querySelector('[value="signin"]')?.dispatchEvent(new MouseEvent('click'));
+      }, 1500);
+      
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
     }
   };
 
