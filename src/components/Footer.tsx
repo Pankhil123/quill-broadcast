@@ -42,8 +42,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="mailto:contact@toadtoe.com" className="text-background/80 hover:text-primary transition-colors">
-                  Contact Us at - contact@toadtoe.com
+                <a href="mailto:contact@toadtoe.online" className="text-background/80 hover:text-primary transition-colors">
+                  Contact Us at - contact@toadtoe.online
                 </a>
               </li>
             </ul>
