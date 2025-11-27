@@ -113,7 +113,7 @@ export default function Auth() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity">
             <Newspaper className="h-10 w-10 text-primary" />
-            <h1 className="text-3xl font-bold text-news-heading">NewsHub</h1>
+            <h1 className="text-3xl font-bold text-news-heading">ToadToe</h1>
           </Link>
         </div>
 
