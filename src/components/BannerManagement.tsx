@@ -62,13 +62,18 @@ export function BannerManagement() {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
+      // Support images and videos
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type === 'video/mp4' || file.type === 'video/webm';
+      
+      if (!isImage && !isVideo) {
+        toast.error('Please upload an image (JPG, PNG, GIF) or video (MP4, WEBM) file');
         return;
       }
 
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size should be less than 5MB');
+      const maxSize = isVideo ? 20 * 1024 * 1024 : 5 * 1024 * 1024; // 20MB for videos, 5MB for images
+      if (file.size > maxSize) {
+        toast.error(isVideo ? 'Video size should be less than 20MB' : 'Image size should be less than 5MB');
         return;
       }
 
@@ -89,7 +94,7 @@ export function BannerManagement() {
           .getPublicUrl(filePath);
 
         setFormData((prev) => ({ ...prev, image_url: data.publicUrl }));
-        toast.success('Image uploaded successfully');
+        toast.success(isVideo ? 'Video uploaded successfully' : 'Image uploaded successfully');
       } catch (err) {
         console.error('Banner image upload error:', err);
         toast.error('Failed to upload image');
@@ -254,13 +259,16 @@ export function BannerManagement() {
               </div>
 
               <div>
-                <Label htmlFor="image">Banner Image</Label>
+                <Label htmlFor="image">Banner Media</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Upload an image (JPG, PNG, GIF) or video (MP4, WEBM)
+                </p>
                 <div className="space-y-2">
                   <div className="flex gap-2 items-center">
                     <Input
                       id="image"
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/mp4,video/webm"
                       onChange={handleImageUpload}
                       disabled={uploading}
                     />
@@ -271,11 +279,20 @@ export function BannerManagement() {
                   </div>
                   {formData.image_url && (
                     <div className="relative w-full h-32 border rounded overflow-hidden">
-                      <img
-                        src={formData.image_url}
-                        alt="Banner preview"
-                        className="w-full h-full object-contain"
-                      />
+                      {formData.image_url.includes('.mp4') || formData.image_url.includes('.webm') ? (
+                        <video
+                          src={formData.image_url}
+                          className="w-full h-full object-contain"
+                          controls
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={formData.image_url}
+                          alt="Banner preview"
+                          className="w-full h-full object-contain"
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -335,11 +352,19 @@ export function BannerManagement() {
                 <CardContent className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="w-32 h-20 border rounded overflow-hidden flex-shrink-0">
-                      <img
-                        src={banner.image_url}
-                        alt={banner.title}
-                        className="w-full h-full object-cover"
-                      />
+                      {banner.image_url.includes('.mp4') || banner.image_url.includes('.webm') ? (
+                        <video
+                          src={banner.image_url}
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={banner.image_url}
+                          alt={banner.title}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold">{banner.title}</h3>

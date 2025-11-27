@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { UserManagement } from '@/components/UserManagement';
 import { BannerManagement } from '@/components/BannerManagement';
+import { EmailTemplateManagement } from '@/components/EmailTemplateManagement';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -68,10 +69,11 @@ export default function Admin() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className={isAdmin ? "grid w-full grid-cols-3 mb-8" : "grid w-full grid-cols-1 mb-8"}>
+            <TabsList className={isAdmin ? "grid w-full grid-cols-4 mb-8" : "grid w-full grid-cols-1 mb-8"}>
               <TabsTrigger value="articles">Articles</TabsTrigger>
               {isAdmin && <TabsTrigger value="users">User Management</TabsTrigger>}
               {isAdmin && <TabsTrigger value="banners">Banners</TabsTrigger>}
+              {isAdmin && <TabsTrigger value="email-templates">Email Templates</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="articles">
@@ -147,6 +149,12 @@ export default function Admin() {
             {isAdmin && (
               <TabsContent value="banners">
                 <BannerManagement />
+              </TabsContent>
+            )}
+            
+            {isAdmin && (
+              <TabsContent value="email-templates">
+                <EmailTemplateManagement />
               </TabsContent>
             )}
           </Tabs>

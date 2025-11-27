@@ -35,7 +35,18 @@ export function BannerDisplay({ type, section }: BannerDisplayProps) {
   }
 
   const renderBanner = (banner: typeof banners[0]) => {
-    const content = (
+    const isVideo = banner.image_url.includes('.mp4') || banner.image_url.includes('.webm');
+    
+    const content = isVideo ? (
+      <video
+        src={banner.image_url}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-auto object-cover rounded-lg shadow-lg"
+      />
+    ) : (
       <img
         src={banner.image_url}
         alt={banner.title}
