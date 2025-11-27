@@ -352,7 +352,8 @@ export default function ArticleDetail() {
               <img
                 src={article.featured_image_url || defaultImage}
                 alt={article.title}
-                className="w-full"
+                className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => setEnlargedImage(article.featured_image_url || defaultImage)}
               />
             </div>
 
