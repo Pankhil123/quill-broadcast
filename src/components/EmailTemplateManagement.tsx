@@ -15,151 +15,288 @@ const EMAIL_TEMPLATE_HTML = `<!DOCTYPE html>
     <style>
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f5f5f5;
+        line-height: 1.7;
+        color: #1f2937;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-      .container {
+      .wrapper {
+        max-width: 650px;
+        margin: 40px auto;
         background: white;
-        border-radius: 12px;
-        padding: 40px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       }
-      .header {
+      .hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 48px 32px;
         text-align: center;
-        margin-bottom: 32px;
-        padding-bottom: 24px;
-        border-bottom: 2px solid #f0f0f0;
+        color: white;
       }
-      .logo {
+      .hero-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 40px;
+        backdrop-filter: blur(10px);
+      }
+      .hero h1 {
+        margin: 0 0 12px;
         font-size: 32px;
-        font-weight: bold;
-        color: #2563eb;
-        margin-bottom: 8px;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
       }
-      .tagline {
-        font-size: 14px;
-        color: #666;
+      .hero p {
+        margin: 0;
+        font-size: 18px;
+        opacity: 0.95;
+      }
+      .content {
+        padding: 48px 40px;
+      }
+      .intro-text {
+        font-size: 18px;
+        color: #4b5563;
         font-style: italic;
-      }
-      h1 {
-        color: #1a1a1a;
-        font-size: 24px;
-        margin-bottom: 16px;
-      }
-      p {
-        margin-bottom: 16px;
-        color: #444;
-      }
-      .features {
-        background: #f8fafc;
-        border-radius: 8px;
+        background: linear-gradient(to right, #f3f4f6, #e5e7eb);
         padding: 24px;
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        margin-bottom: 32px;
+      }
+      h2 {
+        color: #111827;
+        font-size: 24px;
+        margin: 32px 0 20px;
+        font-weight: 700;
+      }
+      .feature-grid {
+        display: grid;
+        gap: 16px;
         margin: 24px 0;
       }
-      .feature-item {
-        margin-bottom: 16px;
-        padding-left: 24px;
-        position: relative;
+      .feature-card {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        transition: transform 0.2s;
       }
-      .feature-item:before {
-        content: "✓";
-        position: absolute;
-        left: 0;
-        color: #2563eb;
-        font-weight: bold;
+      .feature-card:hover {
+        transform: translateX(4px);
+      }
+      .feature-icon {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        background: #667eea;
+        color: white;
+        border-radius: 8px;
+        text-align: center;
+        line-height: 32px;
+        margin-right: 12px;
+        font-size: 18px;
+      }
+      .feature-title {
+        font-weight: 600;
+        color: #111827;
+        font-size: 16px;
+      }
+      .cta-section {
+        text-align: center;
+        margin: 40px 0;
+        padding: 32px;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-radius: 12px;
       }
       .cta-button {
         display: inline-block;
-        background: #2563eb;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 14px 32px;
+        padding: 16px 48px;
         text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        margin: 24px 0;
-        transition: background 0.3s;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 18px;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s;
+        margin-top: 16px;
       }
       .cta-button:hover {
-        background: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5);
+      }
+      .image-banner {
+        margin: 32px 0;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .image-banner img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .benefits {
+        background: #f9fafb;
+        padding: 32px;
+        border-radius: 12px;
+        margin: 32px 0;
+      }
+      .benefits ul {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+      }
+      .benefits li {
+        padding: 12px 0;
+        padding-left: 32px;
+        position: relative;
+        color: #374151;
+      }
+      .benefits li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #10b981;
+        font-weight: bold;
+        font-size: 20px;
+        width: 24px;
+        height: 24px;
+        background: #d1fae5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
       }
       .footer {
-        margin-top: 32px;
-        padding-top: 24px;
-        border-top: 1px solid #e5e5e5;
+        background: #111827;
+        color: #9ca3af;
+        padding: 32px 40px;
         text-align: center;
-        font-size: 12px;
-        color: #666;
       }
-      .categories {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 16px 0;
+      .footer-logo {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 16px;
       }
-      .category-tag {
-        background: #dbeafe;
-        color: #1e40af;
-        padding: 6px 12px;
-        border-radius: 16px;
-        font-size: 12px;
-        font-weight: 500;
+      .footer p {
+        margin: 8px 0;
+        font-size: 14px;
+      }
+      .footer a {
+        color: #667eea;
+        text-decoration: none;
+      }
+      .social-icons {
+        margin-top: 20px;
+      }
+      .social-icon {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: #374151;
+        border-radius: 50%;
+        margin: 0 8px;
+        line-height: 40px;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+        transition: background 0.3s;
+      }
+      .social-icon:hover {
+        background: #667eea;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <div class="logo">ToadToe</div>
-        <div class="tagline">Your Gateway to Financial Market Intelligence</div>
+    <div class="wrapper">
+      <div class="hero">
+        <div class="hero-icon">📊</div>
+        <h1>Welcome to ToadToe</h1>
+        <p>Your Trading Intelligence Platform</p>
       </div>
 
-      <h1>Hello! 👋</h1>
-      
-      <p>Welcome to <strong>ToadToe</strong> – your premier destination for comprehensive financial market analysis and expert insights.</p>
+      <div class="content">
+        <div class="intro-text">
+          Imagine a place where every trader's perspective becomes a learning opportunity — where chart patterns, market notes, and personal analysis come together to create a living library of ideas.
+        </div>
 
-      <p>We're thrilled to have you join our community of informed traders, investors, and financial enthusiasts who rely on ToadToe for cutting-edge market intelligence.</p>
+        <h2>Welcome to ToadToe</h2>
+        <p>Here, you can upload your own chart patterns, share your technical analysis, and explore insights from traders who think just as deeply as you do. Whether it's a breakout setup you spotted, a harmonic pattern you're testing, or a clean support-resistance play, this is the space to document it, refine it, and learn from others doing the same.</p>
 
-      <div class="features">
-        <h3 style="margin-top: 0; color: #1a1a1a;">What Makes ToadToe Special?</h3>
-        <div class="feature-item">
-          <strong>Real-Time Market Analysis</strong> – Stay ahead with up-to-the-minute insights on commodities, equities, indices, and cryptocurrencies
+        <div class="image-banner">
+          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=650&h=300&fit=crop" alt="Trading Charts" />
         </div>
-        <div class="feature-item">
-          <strong>Expert Commentary</strong> – Learn from seasoned analysts and industry experts
+
+        <h2>Inside the portal, you'll be able to:</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <span class="feature-icon">📁</span>
+            <span class="feature-title">Upload and organize your chart patterns with ease</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🏷️</span>
+            <span class="feature-title">Tag and categorize setups for future reference</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🤝</span>
+            <span class="feature-title">Learn from a community of traders sharing real, thoughtful analysis</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">💾</span>
+            <span class="feature-title">Build your own personal archive of trading ideas</span>
+          </div>
+          <div class="feature-card">
+            <span class="feature-icon">🔍</span>
+            <span class="feature-title">Discover recurring patterns in your approach over time</span>
+          </div>
         </div>
-        <div class="feature-item">
-          <strong>Comprehensive Coverage</strong> – From traditional markets to emerging digital assets
+
+        <div class="benefits">
+          <h2 style="margin-top: 0;">Why Join ToadToe?</h2>
+          <ul>
+            <li>Access a repository of collective trading insight</li>
+            <li>Sharpen your analytical edge with real market examples</li>
+            <li>Grow as a trader by observing markets through many lenses</li>
+            <li>Build your personal trading knowledge base</li>
+            <li>Connect with like-minded analytical traders</li>
+          </ul>
         </div>
-        <div class="feature-item">
-          <strong>Free & Premium Content</strong> – Access quality analysis with flexible reading options
+
+        <div class="cta-section">
+          <h2 style="margin-top: 0; color: #92400e;">Ready to Begin Your Journey?</h2>
+          <p style="color: #78350f; font-size: 16px;">Join our community and start building your trading intelligence today.</p>
+          <a href="https://toadtoe.online" class="cta-button">Get Started Now</a>
         </div>
+
+        <p style="text-align: center; font-size: 18px; color: #6b7280; margin-top: 32px;">
+          We're excited to see what you'll create, share, and discover.
+        </p>
+        <p style="text-align: center; font-size: 20px; font-weight: 600; color: #111827;">
+          See you inside.
+        </p>
       </div>
-
-      <h3 style="color: #1a1a1a;">Explore Our Coverage:</h3>
-      <div class="categories">
-        <span class="category-tag">📊 Commodities</span>
-        <span class="category-tag">💹 Equities</span>
-        <span class="category-tag">📈 Indices</span>
-        <span class="category-tag">₿ Cryptocurrencies</span>
-        <span class="category-tag">📰 Market News</span>
-      </div>
-
-      <center>
-        <a href="https://yoursite.com" class="cta-button">Start Exploring ToadToe</a>
-      </center>
-
-      <p style="margin-top: 32px;">Whether you're a seasoned trader or just starting your investment journey, ToadToe provides the insights you need to make informed decisions in today's dynamic markets.</p>
-
-      <p><strong>Have questions or feedback?</strong><br>
-      We'd love to hear from you at <a href="mailto:contact@toadtoe.online" style="color: #2563eb;">contact@toadtoe.online</a></p>
 
       <div class="footer">
-        <p>© ${new Date().getFullYear()} ToadToe. All rights reserved.</p>
-        <p>Stay informed. Trade smarter. Invest confidently.</p>
+        <div class="footer-logo">ToadToe</div>
+        <p>Your Gateway to Financial Market Intelligence</p>
+        <p>Questions? Reach us at <a href="mailto:contact@toadtoe.online">contact@toadtoe.online</a></p>
+        <div class="social-icons">
+          <a href="#" class="social-icon">𝕏</a>
+          <a href="#" class="social-icon">in</a>
+          <a href="#" class="social-icon">📧</a>
+        </div>
+        <p style="margin-top: 24px; font-size: 12px;">© ${new Date().getFullYear()} ToadToe. All rights reserved.</p>
       </div>
     </div>
   </body>
