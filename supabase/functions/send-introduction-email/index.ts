@@ -199,23 +199,6 @@ function createIntroductionEmailHTML(name?: string): string {
         color: #667eea;
         text-decoration: none;
       }
-      .social-icons {
-        margin-top: 20px;
-      }
-      .social-icon {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        background: #374151;
-        border-radius: 50%;
-        margin: 0 8px;
-        line-height: 40px;
-        text-align: center;
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-        transition: background 0.3s;
-      }
     </style>
   </head>
   <body>
@@ -276,7 +259,7 @@ function createIntroductionEmailHTML(name?: string): string {
         <div class="cta-section">
           <h2 style="margin-top: 0; color: #92400e;">Ready to Begin Your Journey?</h2>
           <p style="color: #78350f; font-size: 16px;">Join our community and start building your trading intelligence today.</p>
-          <a href="https://toadtoe.online" class="cta-button">Get Started Now</a>
+          <a href="https://www.toadtoe.online/" class="cta-button">Get Started Now</a>
         </div>
 
         <p style="text-align: center; font-size: 18px; color: #6b7280; margin-top: 32px;">
@@ -291,11 +274,6 @@ function createIntroductionEmailHTML(name?: string): string {
         <div class="footer-logo">ToadToe</div>
         <p>Your Gateway to Financial Market Intelligence</p>
         <p>Questions? Reach us at <a href="mailto:contact@toadtoe.online">contact@toadtoe.online</a></p>
-        <div class="social-icons">
-          <a href="#" class="social-icon">𝕏</a>
-          <a href="#" class="social-icon">in</a>
-          <a href="#" class="social-icon">📧</a>
-        </div>
         <p style="margin-top: 24px; font-size: 12px;">© ${new Date().getFullYear()} ToadToe. All rights reserved.</p>
       </div>
     </div>
