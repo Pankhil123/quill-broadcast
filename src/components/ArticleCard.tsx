@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from 'react-router-dom';
-import { Calendar, Eye, ThumbsUp } from 'lucide-react';
+import { Calendar, Eye, ThumbsUp, Copy } from 'lucide-react';
 import { format } from 'date-fns';
 import defaultImage from '@/assets/default-news-image.jpg';
+import { Button } from "@/components/ui/button";
+import { CopyTradeDialog } from "@/components/CopyTradeDialog";
 
 interface ArticleCardProps {
   id: string;
@@ -17,6 +20,7 @@ interface ArticleCardProps {
 }
 
 export function ArticleCard({
+  id,
   slug,
   title,
   excerpt,
@@ -27,9 +31,12 @@ export function ArticleCard({
   likesCount = 0,
   authorName
 }: ArticleCardProps) {
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
+
   return (
-    <Link to={`/article/${slug}`} className="group">
-      <article className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 h-full flex flex-col">
+    <>
+      <Link to={`/article/${slug}`} className="group block">
+        <article className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 h-full flex flex-col">
         <div className="aspect-video overflow-hidden bg-muted relative">
           <img
             src={featuredImage || defaultImage}
@@ -71,5 +78,28 @@ export function ArticleCard({
         </div>
       </article>
     </Link>
+    
+    <div className="mt-2">
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full gap-2"
+        onClick={(e) => {
+          e.preventDefault();
+          setShowCopyDialog(true);
+        }}
+      >
+        <Copy className="h-4 w-4" />
+        Copy Trade
+      </Button>
+    </div>
+
+    <CopyTradeDialog
+      open={showCopyDialog}
+      onOpenChange={setShowCopyDialog}
+      articleTitle={title}
+      articleId={id}
+    />
+  </>
   );
 }
