@@ -9,8 +9,5 @@ verify_jwt = false
 [functions.send-introduction-email]
 verify_jwt = false
 
-[functions.alpha-vantage]
-verify_jwt = false
-
 [functions.chatbot]
 verify_jwt = false
