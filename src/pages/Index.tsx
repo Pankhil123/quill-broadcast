@@ -7,6 +7,7 @@ import { CategoryNav } from '@/components/CategoryNav';
 import { BannerDisplay } from '@/components/BannerDisplay';
 import { Footer } from '@/components/Footer';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEO } from '@/components/SEO';
 
 const SECTIONS = [
   { id: 'commodities', name: 'Commodities' },
@@ -57,6 +58,11 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="ToadToe - Pattern Analysis and Opportunities"
+        description="Stay informed with ToadToe's latest patterns and in-depth market analysis. Expert insights on commodities, cryptocurrencies, indices, and equities trading."
+        keywords="trading patterns, market analysis, commodities trading, cryptocurrency analysis, stock indices, equities, financial markets, chart patterns, technical analysis"
+      />
       <Header />
       
       <BannerDisplay type="header" />

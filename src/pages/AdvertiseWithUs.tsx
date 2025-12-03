@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,11 @@ import { Button } from '@/components/ui/button';
 export default function AdvertiseWithUs() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="Advertise With Us"
+        description="Partner with ToadToe to reach traders, investors, and financial enthusiasts. Banner ads, sponsored articles, and targeted advertising opportunities."
+        keywords="advertising, sponsored content, banner ads, financial advertising, trading platform ads, ToadToe advertising"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12 flex-1">

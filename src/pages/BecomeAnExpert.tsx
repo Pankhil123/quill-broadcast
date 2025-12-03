@@ -1,11 +1,17 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, LineChart } from 'lucide-react';
 
 export default function BecomeAnExpert() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEO
+        title="Become an Expert Contributor"
+        description="Share your chart analysis, trading patterns, and market insights with the ToadToe community. Join our team of expert contributors."
+        keywords="expert contributor, chart analyst, trading patterns, market insights, financial writing, ToadToe contributor"
+      />
       <Header />
 
       <main className="container mx-auto px-4 py-12 flex-1">

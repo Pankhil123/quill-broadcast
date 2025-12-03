@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
+import { SEO } from '@/components/SEO';
 import { UserManagement } from '@/components/UserManagement';
 import { BannerManagement } from '@/components/BannerManagement';
 import { EmailTemplateManagement } from '@/components/EmailTemplateManagement';
@@ -45,6 +46,11 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Admin Dashboard"
+        description="ToadToe admin dashboard - Manage articles, users, banners, and content."
+        keywords="admin, dashboard, content management, ToadToe admin"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12">
