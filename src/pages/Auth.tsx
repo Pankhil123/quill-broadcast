@@ -11,6 +11,7 @@ import { Newspaper } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Separator } from '@/components/ui/separator';
+import { SEO } from '@/components/SEO';
 
 export default function Auth() {
   const [email, setEmail] = useState('');
@@ -109,6 +110,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <SEO
+        title="Sign In or Sign Up"
+        description="Sign in to your ToadToe account or create a new account to access premium market analysis and trading patterns."
+        keywords="sign in, sign up, login, register, ToadToe account, trading account"
+      />
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity">

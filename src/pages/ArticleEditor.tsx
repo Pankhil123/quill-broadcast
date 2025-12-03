@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
+import { SEO } from '@/components/SEO';
 import { RichTextEditor } from '@/components/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -195,6 +196,11 @@ export default function ArticleEditor() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={id ? 'Edit Article' : 'Create New Article'}
+        description="ToadToe article editor - Create and edit market analysis articles."
+        keywords="article editor, content management, ToadToe"
+      />
       <Header />
       
       <main className="container mx-auto px-4 py-12">

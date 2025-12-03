@@ -7,6 +7,7 @@ import { ArticleCard } from '@/components/ArticleCard';
 import { CategoryNav } from '@/components/CategoryNav';
 import { BannerDisplay } from '@/components/BannerDisplay';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -67,6 +68,11 @@ export default function SectionArticles() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO
+        title={`${section.name} - Market Analysis`}
+        description={`Explore ${section.name.toLowerCase()} market analysis, trading patterns, and expert insights on ToadToe.`}
+        keywords={`${section.name.toLowerCase()}, trading patterns, market analysis, chart analysis, ToadToe`}
+      />
       <Header />
       
       <BannerDisplay type="header" section={sectionId} />

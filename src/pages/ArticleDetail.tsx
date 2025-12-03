@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { Header } from '@/components/Header';
 import { CategoryNav } from '@/components/CategoryNav';
 import { Footer } from '@/components/Footer';
+import { SEO } from '@/components/SEO';
 import { Calendar, User, ArrowLeft, Lock, Eye, ThumbsUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -280,6 +281,17 @@ export default function ArticleDetail() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {article && (
+        <SEO
+          title={article.title}
+          description={article.excerpt}
+          keywords={`${article.section}, trading, market analysis, pattern analysis, ToadToe`}
+          image={article.featured_image_url || undefined}
+          type="article"
+          author={article.author_name || 'ToadToe'}
+          publishedAt={article.published_at || undefined}
+        />
+      )}
       <Header />
       
       <main className="container mx-auto px-4 py-12 flex-1">
