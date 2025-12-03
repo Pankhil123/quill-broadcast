@@ -29,29 +29,28 @@ export function UserManagement() {
     }
   });
 
-  // Fetch user details for all users with roles
+  // Fetch user details via edge function
   const { data: userDetails } = useQuery({
     queryKey: ['user-details', userRoles],
     queryFn: async () => {
       if (!userRoles || userRoles.length === 0) return {};
       
       const uniqueUserIds = [...new Set(userRoles.map(ur => ur.user_id))];
-      const detailsMap: Record<string, { email: string; firstName?: string; lastName?: string; mobile?: string }> = {};
       
-      // Fetch user data for each user ID
-      for (const userId of uniqueUserIds) {
-        const { data } = await supabase.auth.admin.getUserById(userId);
-        if (data?.user?.email) {
-          detailsMap[userId] = {
-            email: data.user.email,
-            firstName: data.user.user_metadata?.first_name,
-            lastName: data.user.user_metadata?.last_name,
-            mobile: data.user.user_metadata?.mobile
-          };
-        }
+      // Get the current session for authorization
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return {};
+      
+      const response = await supabase.functions.invoke('get-user-details', {
+        body: { userIds: uniqueUserIds },
+      });
+      
+      if (response.error) {
+        console.error('Error fetching user details:', response.error);
+        return {};
       }
       
-      return detailsMap;
+      return response.data?.userDetails || {};
     },
     enabled: !!userRoles && userRoles.length > 0
   });
