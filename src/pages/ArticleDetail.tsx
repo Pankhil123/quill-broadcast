@@ -17,23 +17,29 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const ARTICLE_VIEW_KEY = 'articleViewCount';
+const VIEWED_ARTICLES_KEY = 'viewedArticles';
 const FREE_ARTICLE_LIMIT = 3;
 
 export default function ArticleDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
   const [viewCount, setViewCount] = useState(0);
+  const [hasCountedThisArticle, setHasCountedThisArticle] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // Track article views for non-authenticated users
+  // Track article views for non-authenticated users - read initial count
   useEffect(() => {
     if (!user) {
       const stored = localStorage.getItem(ARTICLE_VIEW_KEY);
       const count = stored ? parseInt(stored, 10) : 0;
       setViewCount(count);
+      
+      // Check if this article has already been viewed
+      const viewedArticles = JSON.parse(localStorage.getItem(VIEWED_ARTICLES_KEY) || '[]');
+      setHasCountedThisArticle(viewedArticles.includes(slug));
     }
-  }, [user]);
+  }, [user, slug]);
 
   // Fetch user roles
   const { data: userRoles } = useQuery({
@@ -148,14 +154,22 @@ export default function ArticleDetail() {
 
   const totalLikes = (article?.likes_count || 0) + (userLikesCount || 0);
 
-  // Increment view count for non-authenticated users
+  // Increment view count for non-authenticated users - only count each article once
   useEffect(() => {
-    if (article && !user && viewCount < FREE_ARTICLE_LIMIT) {
-      const newCount = viewCount + 1;
-      localStorage.setItem(ARTICLE_VIEW_KEY, newCount.toString());
-      setViewCount(newCount);
+    if (article && !user && !hasCountedThisArticle && viewCount < FREE_ARTICLE_LIMIT) {
+      // Mark this article as viewed
+      const viewedArticles = JSON.parse(localStorage.getItem(VIEWED_ARTICLES_KEY) || '[]');
+      if (!viewedArticles.includes(slug)) {
+        viewedArticles.push(slug);
+        localStorage.setItem(VIEWED_ARTICLES_KEY, JSON.stringify(viewedArticles));
+        
+        const newCount = viewCount + 1;
+        localStorage.setItem(ARTICLE_VIEW_KEY, newCount.toString());
+        setViewCount(newCount);
+        setHasCountedThisArticle(true);
+      }
     }
-  }, [article, user, viewCount]);
+  }, [article, user, slug, hasCountedThisArticle, viewCount]);
 
   if (error) {
     return <Navigate to="/" />;
@@ -176,11 +190,13 @@ export default function ArticleDetail() {
     // Free articles: everyone can see (authenticated or first 3 views for non-authenticated)
     if (article?.article_type === 'free') {
       if (user) return true; // Authenticated users can see all free articles
-      return viewCount < FREE_ARTICLE_LIMIT; // Non-authenticated: first 3 views
+      // Allow if this is one of the first 3 unique articles viewed
+      // Check if article has already been counted OR if we're still under the limit
+      return hasCountedThisArticle || viewCount < FREE_ARTICLE_LIMIT;
     }
 
     // Non-authenticated users who exceeded limit cannot view any article
-    if (!user && viewCount >= FREE_ARTICLE_LIMIT) {
+    if (!user && viewCount >= FREE_ARTICLE_LIMIT && !hasCountedThisArticle) {
       return false;
     }
 
@@ -192,7 +208,8 @@ export default function ArticleDetail() {
     if (!article) return null;
 
     const isFreeArticle = article.article_type === 'free';
-    const hasExceededLimit = !user && viewCount >= FREE_ARTICLE_LIMIT;
+    // Show paywall only if user exceeded limit AND this article is not one they already viewed
+    const hasExceededLimit = !user && viewCount >= FREE_ARTICLE_LIMIT && !hasCountedThisArticle;
 
     // Show paywall for non-authenticated users who exceeded the limit
     if (hasExceededLimit && isFreeArticle) {
