@@ -6,14 +6,27 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  console.log('get-user-details function called');
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    console.log('Supabase URL available:', !!supabaseUrl);
+    console.log('Service key available:', !!supabaseServiceKey);
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing environment variables');
+      return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     // Create admin client with service role key
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
@@ -58,7 +71,19 @@ Deno.serve(async (req) => {
     }
 
     // Get user IDs from request body
-    const { userIds } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.error('Failed to parse request body:', e);
+      return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const { userIds } = body;
+    console.log('Received userIds:', userIds);
     
     if (!userIds || !Array.isArray(userIds)) {
       return new Response(JSON.stringify({ error: 'userIds array required' }), {
@@ -71,25 +96,37 @@ Deno.serve(async (req) => {
     const userDetails: Record<string, { email: string; firstName?: string; lastName?: string; mobile?: string }> = {};
     
     for (const userId of userIds) {
-      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
-      
-      if (!userError && userData?.user) {
-        userDetails[userId] = {
-          email: userData.user.email || '',
-          firstName: userData.user.user_metadata?.first_name,
-          lastName: userData.user.user_metadata?.last_name,
-          mobile: userData.user.user_metadata?.mobile,
-        };
+      console.log('Fetching details for user:', userId);
+      try {
+        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+        
+        if (userError) {
+          console.error(`Error fetching user ${userId}:`, userError);
+          continue;
+        }
+        
+        if (userData?.user) {
+          console.log(`User ${userId} metadata:`, userData.user.user_metadata);
+          userDetails[userId] = {
+            email: userData.user.email || '',
+            firstName: userData.user.user_metadata?.first_name,
+            lastName: userData.user.user_metadata?.last_name,
+            mobile: userData.user.user_metadata?.mobile,
+          };
+        }
+      } catch (e) {
+        console.error(`Exception fetching user ${userId}:`, e);
       }
     }
 
+    console.log('Returning user details for', Object.keys(userDetails).length, 'users');
     return new Response(JSON.stringify({ userDetails }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error fetching user details:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    return new Response(JSON.stringify({ error: 'Internal server error', details: String(error) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

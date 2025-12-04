@@ -176,7 +176,12 @@ export default function ArticleDetail() {
     // Free articles: everyone can see (authenticated or first 3 views for non-authenticated)
     if (article?.article_type === 'free') {
       if (user) return true; // Authenticated users can see all free articles
-      return viewCount <= FREE_ARTICLE_LIMIT; // Non-authenticated: first 3 views
+      return viewCount < FREE_ARTICLE_LIMIT; // Non-authenticated: first 3 views
+    }
+
+    // Non-authenticated users who exceeded limit cannot view any article
+    if (!user && viewCount >= FREE_ARTICLE_LIMIT) {
+      return false;
     }
 
     // Paid articles: only paid readers
@@ -187,7 +192,7 @@ export default function ArticleDetail() {
     if (!article) return null;
 
     const isFreeArticle = article.article_type === 'free';
-    const hasExceededLimit = !user && viewCount > FREE_ARTICLE_LIMIT;
+    const hasExceededLimit = !user && viewCount >= FREE_ARTICLE_LIMIT;
 
     // Show paywall for non-authenticated users who exceeded the limit
     if (hasExceededLimit && isFreeArticle) {
